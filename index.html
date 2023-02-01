@@ -99,52 +99,53 @@
 <div>
   <table id="marksTable">
     <tr>
-      <td><button id="Top Mark" onclick="markButtonClicked('TOP_MARK')">TOP MARK</button></td>
+      <td><button id="Top Mark" onclick="markButtonClicked('Top Mark')">TOP MARK</button></td>
       <td>
-        <button id="WING_MARK" onclick="markButtonClicked('WING_MARK')" style="width:60%">WING MARK</button>
-        <select id="WING_MARK_DIRECTION" style="width:35%; height:80%; vertical-align:middle; font-size:3vh" onchange="computeWingMark()">
-          <option value="PORT">P</option>
-          <option value="STARBOARD">S</option>
+        <button id="Wing Mark" onclick="markButtonClicked('Wing Mark')" style="width:60%">WING MARK</button>
+        <select id="Wing Mark Direction" style="width:35%; height:80%; vertical-align:middle; font-size:3vh" onchange="computeWingMark()">
+          <option value="port">P</option>
+          <option value="starboard">S</option>
         </select>
       </td>
     </tr>
     <tr>
-      <td><button id="BOTTOM_MARK" onclick="markButtonClicked('BOTTOM_MARK')">BOTTOM MARK</button></td>
-      <td><button id="RAMSGATE" onclick="markButtonClicked('Ramsgate')">RAMSGATE</button></td>
+      <td><button id="Bottom Mark" onclick="markButtonClicked('Bottom Mark')">BOTTOM MARK</button></td>
+      <td><button id="Ramsgate" onclick="markButtonClicked('Ramsgate')">RAMSGATE</button></td>
     </tr>
     <tr>
-      <td><button id="BRIGHTON" onclick="markButtonClicked('Brighton')">BRIGHTON</button></td>
-      <td><button id="AIRPORT" onclick="markButtonClicked('Airport')">AIRPORT</button></td>
+      <td><button id="Brighton" onclick="markButtonClicked('Brighton')">BRIGHTON</button></td>
+      <td><button id="Airport" onclick="markButtonClicked('Airport')">AIRPORT</button></td>
     </tr>
     <tr>
-      <td><button id="KURNELL" onclick="markButtonClicked('Kurnell')">KURNELL</button></td>
-      <td><button id="QUIBRAY" onclick="markButtonClicked('Quibray')">QUIBRAY</button></td>
+      <td><button id="Kurnell" onclick="markButtonClicked('Kurnell')">KURNELL</button></td>
+      <td><button id="Quibray" onclick="markButtonClicked('Quibray')">QUIBRAY</button></td>
     </tr>
     <tr>
-      <td><button id="OUTER_TOWRA" onclick="markButtonClicked('Outer Towra')">OUTER TOWRA</button></td>
-      <td><button id="TAYLOR_BAR" onclick="markButtonClicked('Taylor Bar')">TAYLOR BAR</button></td>
+      <td><button id="Outer Towra" onclick="markButtonClicked('Outer Towra')">OUTER TOWRA</button></td>
+      <td><button id="Taylor Bar" onclick="markButtonClicked('Taylor Bar')">TAYLOR BAR</button></td>
     </tr>
     <tr>
-      <td><button id="CAPTAIN_COOK" onclick="markButtonClicked('Captain Cook')">CAPTAIN COOK</button></td>
-      <td><button id="WAVERIDER" onclick="markButtonClicked('Waverider')">WAVERIDER</button></td>
+      <td><button id="Captain Cook" onclick="markButtonClicked('Captain Cook')">CAPTAIN COOK</button></td>
+      <td><button id="Waverider" onclick="markButtonClicked('Waverider')">WAVERIDER</button></td>
     </tr>
   </table>
 </div>
 
 <dialog id="setMarks" class="dialog">
   <button id="setTopMark" style="position:absolute; width:35%; left:10%; height:15%; top:10%"
-    onclick="document.getElementById('setMarks').close(); setMarkClicked('TOP_MARK')">SET TOP MARK</button>
+    onclick="document.getElementById('setMarks').close(); setMarkClicked('Top Mark')">SET TOP MARK</button>
   <button id="cancelTopMark" style="position:absolute; width:35%; left:55%; height:15%; top:10%"
-    onclick="document.getElementById('setMarks').close(); cancelMarkClicked('TOP_MARK')">CLEAR TOP MARK</button>
+    onclick="document.getElementById('setMarks').close(); cancelMarkClicked('Top Mark')">CLEAR TOP MARK</button>
   <button id="setBottomMark" style="position:absolute; width:35%; left:10%; height:15%; top:30%"
-    onclick="document.getElementById('setMarks').close(); setMarkClicked('BOTTOM_MARK')">SET BOTTOM MARK</button>
+    onclick="document.getElementById('setMarks').close(); setMarkClicked('Bottom Mark')">SET BOTTOM MARK</button>
   <button id="cancelBottomMark" style="position:absolute; width:35%; left:55%; height:15%; top:30%"
-    onclick="document.getElementById('setMarks').close(); cancelMarkClicked('BOTTOM_MARK')">CLEAR BOTTOM MARK</button>
+    onclick="document.getElementById('setMarks').close(); cancelMarkClicked('Bottom Mark')">CLEAR BOTTOM MARK</button>
   <button id="setMarksCancel" style="position:absolute; width:60%; left:20%; height:15%; top:80%"
     onclick="document.getElementById('setMarks').close()">Cancel</button>
 </dialog>
 
 </body>
+<script src="./location.js"></script>
 <script>
   var nxtDistance = document.getElementById('nxtDistance');
   var nxtCourse = document.getElementById('nxtCourse');
@@ -165,54 +166,54 @@
   var selectedMark = null;
   var globalCharacteristic = null;
   var marks = {
-    "TOP_MARK": {
-      enabled: false,
+    "Top Mark": {
+      status: "disabled",
       location: null,
     },
-    "WING_MARK": {
-      enabled: false,
+    "Wing Mark": {
+      status: "disabled",
       location: null,
       direction: 'port',
     },
-    "BOTTOM_MARK": {
-      enabled: false,
+    "Bottom Mark": {
+      status: "disabled",
       location: null,
     },
-    'RAMSGATE': {
-      enabled: true,
+    'Ramsgate': {
+      status: "enabled",
       location: [151+09.229/60, -(33+59.193/60)]
     },
-    'BRIGHTON': {
-      enabled: true,
+    'Brighton': {
+      status: "enabled",
       location: [151+09.694/60, -(33+57.768/60)]
     },
-    'AIRPORT': {
-      enabled: true,
+    'Airport': {
+      status: "enabled",
       location: [151+11.330/60, -(33+58.576/60)]
     },
-    'KURNELL': {
-      enabled: true,
+    'Kurnell': {
+      status: "enabled",
       location: [151+12.128/60, -(34+0.130/60)]
     },
-    'QUIBRAY': {
-      enabled: true,
+    'Quibray': {
+      status: "enabled",
       location: [151+11.005/60, -(34+0.137/60)]
     },
-    'OUTER_TOWRA': {
-      enabled: true,
+    'Outer Towra': {
+      status: "enabled",
       location: [151+9.791/60, -(33+59.434/60)]
     },
-    'TAYLOR_BAR': {
-      enabled: true,
+    'Taylor Bar': {
+      status: "enabled",
       location: [151+09.426/60, -(33+59.474/60)]
     },
-    'CAPTAIN_COOK': { // Captain Cook Buoy: Red pillar buoy (lat. 33º 59.9’S; long. 151º 13.1’E)
-      enabled: true,
+    'Captain Cook': { // Captain Cook Buoy: Red pillar buoy (lat. 33º 59.9’S; long. 151º 13.1’E)
+      status: "enabled",
       location: [151+13.1/60, -(33+59.9/60)]
     },
-    'WAVERIDER': { // Yellow Spherical buoy with aerial (lat. 34 02.43’S; long. 151º 15.18’E)
+    'Waverider': { // Yellow Spherical buoy with aerial (lat. 34 02.43’S; long. 151º 15.18’E)
                    // approximately 1NM East of Cape Baily
-      enabled: true,
+      status: "enabled",
       location: [151+15.18/60, -(34+2.43/60)]
     }
   }
@@ -221,11 +222,7 @@
     for (let mark in marks) {
       console.log(mark);
       var m = document.getElementById(mark);
-      console.log(mark.enabled)
-      if (mark.enabled == true)
-        m.className = 'enabled'
-      else
-        m.className = 'disabled'
+      m.className = marks[mark].status;
     }
     setInterval('UpdateUI()', interval);
     //watchLocation(updatePosition);
@@ -303,7 +300,7 @@
       selectedMark = mark;
     } else {
       selectedMark = null;
-      if (mark != 'WING_MARK') {
+      if (mark != 'Wing Mark') {
         document.getElementById('setMarks').showModal();                    
       }
     }
@@ -320,13 +317,13 @@
     marks[mark].location = null;
     marks[mark].status = 'disabled';
     document.getElementById(mark).className = 'disabled';
-    marks['WING_MARK'].location = null;
-    marks['WING_MARK'].status = 'disabled';
-    document.getElementById('WING_MARK').className = 'disabled';
+    marks['Wing Mark'].location = null;
+    marks['Wing Mark'].status = 'disabled';
+    document.getElementById('Wing Mark').className = 'disabled';
   }
 
   function computeWingMark() {
-    if (marks['TOP_MARK'].status == 'enabled' && marks["Bottom Mark"].status == 'enabled') {
+    if (marks['Top Mark'].status == 'enabled' && marks["Bottom Mark"].status == 'enabled') {
       console.log('computing wing mark');
       // compute wing mark location
       if (document.getElementById('Wing Mark Direction').value == 'port')
@@ -334,19 +331,19 @@
       else
         wingMarkDirection = 45.0;
 
-      marks['WING_MARK'].location = projectDistance(
-        marks['BOTTOM_MARK'].location[1], marks['BOTTOM_MARK'].location[0],
+      marks['Wing Mark'].location = projectDistance(
+        marks['Bottom Mark'].location[1], marks['Bottom Mark'].location[0],
         0.7071 * distance_between(
-          marks['BOTTOM_MARK'].location[1], marks['BOTTOM_MARK'].location[0],
-          marks['TOP_MARK'].location[1], marks['TOP_MARK'].location[0],
+          marks['Bottom Mark'].location[1], marks['Bottom Mark'].location[0],
+          marks['Top Mark'].location[1], marks['Top Mark'].location[0],
         ),
         course_between(
-          marks['BOTTOM_MARK'].location[1], marks['BOTTOM_MARK'].location[0],
-          marks['TOP_MARK'].location[1], marks['TOP_MARK'].location[0],
+          marks['Bottom Mark'].location[1], marks['Bottom Mark'].location[0],
+          marks['Top Mark'].location[1], marks['Top Mark'].location[0],
         ) + wingMarkDirection
       )
-      marks['WING_MARK'].status = 'enabled';
-      document.getElementById('WING_MARK').className = 'enabled';
+      marks['Wing Mark'].status = 'enabled';
+      document.getElementById('Wing Mark').className = 'enabled';
     }  
   }
 
