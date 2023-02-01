@@ -1,0 +1,21 @@
+<html>
+    <head>
+    <body>
+    <div id="p0"></div>
+    </body>
+    <script src="./location.js"></script>
+    <script>
+      var p0 = document.getElementById("p0");
+      var watchId = navigator.geolocation.watchPosition(updatePosition, handleError);
+    
+      function updatePosition(position) {
+        p0.innerText = position.toString();
+      }
+    
+      function handleError(error) {
+        p0.innerText = "Error getting location.";
+      }
+    
+    </script>
+    </html>
+    

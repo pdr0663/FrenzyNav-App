@@ -1,0 +1,299 @@
+<html>
+<head>
+  <link rel="stylesheet" href="./siimple.css" />
+  <!--><script type="module" src="https://esm.sh/@siimple/standalone"></script><-->
+</head>
+<body onload = "startUp()">
+<div id="statsTable" class="container has-w-screen has-h-64" onclick="document.getElementById('setMarks').showModal()">
+    <div class="columns has-text-center">
+        <div class="column is-half">
+            <div class="label">SOG (knots)</div>
+            <div id="curSpeed" class="is-rounded has-bg-primary has-text-white">-.--</div>
+            <div class="label">NEXT DIST (nm)</div>
+            <div id="nxtDistance" class="is-rounded has-bg-primary has-text-white">-.--</div>
+        </div>
+        <div class="column is-half">
+            <div class="label">COG (true)</div>
+            <div id="curCourse" class="is-rounded has-bg-primary has-text-white">---</div>
+            <div class="label">NEXT COG (true)</div>
+            <div id="nxtCourse" class="is-rounded has-bg-primary has-text-white">---</div>
+        </div>
+    </div>
+</div>
+<div id="marksTable" class="container has-w-screen has-h-two-thirds" >
+  <div class="columns has-text-center">
+    <div class="column is-half">
+      <button id="Top Mark" class="button is-rounded has-bg-muted" onclick="markButtonClicked('Top Mark')">TOP MARK</button>
+      <button id="Bottom Mark" class="button has-bg-muted" onclick="markButtonClicked('Bottom Mark')">BOTTOM MARK</button>
+      <button id="Brighton" class="button is-rounded is-secondary" onclick="markButtonClicked('Brighton')">BRIGHTON</button>
+      <button id="Kurnell" class="button is-rounded is-secondary" onclick="markButtonClicked('Kurnell')">KURNELL</button>
+      <button id="Outer Towra" class="button is-rounded is-secondary has-text-white" onclick="markButtonClicked('Outer Towra')">OUTER TOWRA</button>
+    </div>
+    <div class="column is-half">
+      <span>
+          <button id="Wing Mark" class="button is-rounded has-w-96 has-bg-muted" onclick="markButtonClicked('Wing Mark')">WING MARK</button>
+          <select id="Wing Mark Direction" class="select has-w-48 is-secondary" onchange="computeWingMark()">
+            <option selected value="port">P</option>
+            <option value="starboard">S</option>
+          </select>
+      </span>
+      <button id="Ramsgate" class="button is-rounded has-bg-secondary has-text-white" onclick="markButtonClicked('Ramsgate')">RAMSGATE</button>
+      <button id="Airport" class="button is-rounded has-bg-secondary has-text-white" onclick="markButtonClicked('Airport')">AIRPORT</button>
+      <button id="Quibray" class="button is-rounded has-bg-secondary has-text-white" onclick="markButtonClicked('Quibray')">QUIBRAY</button>
+      <button id="Taylor Bar" class="button is-rounded has-bg-secondary has-text-white" onclick="markButtonClicked('Taylor Bar')">TAYLOR BAR</button>
+    </div>
+  </div>
+</div>
+
+<dialog id="setMarks" class="dialog">
+  <button id="setTopMark" onclick="document.getElementById('setMarks').close(); setMarkClicked('Top Mark')">SET TOP MARK</button>
+  <button id="cancelTopMark" onclick="document.getElementById('setMarks').close(); cancelMarkClicked('Top Mark')">CLEAR TOP MARK</button>
+  <button id="setBottomMark" onclick="document.getElementById('setMarks').close(); setMarkClicked('Bottom Mark')">SET BOTTOM MARK</button>
+  <button id="cancelBottomMark" onclick="document.getElementById('setMarks').close(); cancelMarkClicked('Bottom Mark')">CLEAR BOTTOM MARK</button>
+  <button id="connectDisplayButton" onclick="document.getElementById('setMarks').close();connectDisplay()">Connect to Display</button>
+  <button id="setMarksCancel" onclick="document.getElementById('setMarks').close()">Cancel</button>
+</dialog>
+
+</body>
+<script src="./location.js"></script>
+<script>
+  var nxtDistance = document.getElementById('nxtDistance');
+  var nxtCourse = document.getElementById('nxtCourse');
+  var curCourse = document.getElementById("curCourse");
+  var curSpeed = document.getElementById("curSpeed");
+  var setMark = document.getElementById("setMark");
+
+  var status = {
+      speed: null
+    , course: null
+    , location: null
+    , target: null
+    , selectedMark: null
+  }
+  const interval = 2000; // milliseconds
+  const knots = 0.5399568; // knots / (m/s)
+  var selectedMark = null;
+  var BLE_Transmit = null;
+  var BLE_Receive = null;
+
+  var marks = {
+    "Top Mark": {
+      status: "disabled",
+      location: null,
+    },
+    "Wing Mark": {
+      status: "disabled",
+      location: null,
+      direction: 'port',
+    },
+    "Bottom Mark": {
+      status: "disabled",
+      location: null,
+    },
+    'Ramsgate': {
+      status: "enabled",
+      location: [151+09.229/60, -(33+59.193/60)]
+    },
+    'Brighton': {
+      status: "enabled",
+      location: [151+09.694/60, -(33+57.768/60)]
+    },
+    'Airport': {
+      status: "enabled",
+      location: [151+11.330/60, -(33+58.576/60)]
+    },
+    'Kurnell': {
+      status: "enabled",
+      location: [151+12.128/60, -(34+0.130/60)]
+    },
+    'Quibray': {
+      status: "enabled",
+      location: [151+11.005/60, -(34+0.137/60)]
+    },
+    'Outer Towra': {
+      status: "enabled",
+      location: [151+9.791/60, -(33+59.434/60)]
+    },
+    'Taylor Bar': {
+      status: "enabled",
+      location: [151+09.426/60, -(33+59.474/60)]
+    }
+  }
+
+  function startUp() {
+    console.log("Start up.");
+    for (let mark in marks) {
+      var m = document.getElementById(mark);
+      m.className = marks[mark].status;
+    }
+    setInterval('UpdateUI()', interval);
+  }
+
+  function updatePosition(position) {
+    locationActual = [status.longitude, status.latitude];
+    locationQueue.shift();
+    locationQueue.push(locationActual);
+    var lonNew = (0.1*locationQueue[0][0]+0.25*locationQueue[1][0]+0.65*locationQueue[2][0]);
+    var latNew = (0.1*locationQueue[0][1]+0.25*locationQueue[1][1]+0.65*locationQueue[2][1]);
+    locationNew = [lonNew, latNew];
+  }
+
+  function error(err) {
+    console.log(`ERROR(${err.code}): ${err.message}`);
+  }
+
+  function formatFloat(num) {
+    if (num > 99.9 || num < 0.0) return '-.--';
+    if (num >= 10.0) return num.toFixed(1);
+    return num.toFixed(2);
+  }
+
+  function formatCourse(num) {
+    if (num < 0) return "---";
+    str = (num % 360.0).toFixed(0).toString();
+    if (str.length == 3) return str;      
+    if (str.length == 2) return "0"+str;
+    return "00"+str;
+  }
+
+  function UpdateUI() {
+    //navigator.geolocation.getCurrentPosition(updatePosition);
+
+    if (status.location) {
+      if (status.speed)  curSpeed.innerText = formatFloat(status.speed);
+      if (status.course) curCourse.innerText = formatCourse(status.course);
+      if (status.target) {
+        var d = distance_between(status.location[1], status.location[0], status.target[1], status.target[0]);
+        if (d >= 10.0)
+          nxtDistance.innerText = formatFloat(d);
+        else
+          nxtDistance.innerText = formatFloat(d);
+        nxtCourse.innerText = formatCourse(
+          course_between(status.location[1], status.location[0], status.target[1], status.target[0]).toFixed(0)
+        );
+      }  
+    }
+  }
+
+  function markButtonClicked(mark) {
+    if (selectedMark) document.getElementById(selectedMark).className = marks[selectedMark].status;
+    if (marks[mark].status == "enabled") {
+      document.getElementById(mark).className = "selected";
+      targetLocation = marks[mark].location;
+      selectedMark = mark;
+    } else {
+      selectedMark = null;
+      if (mark != 'Wing Mark') {
+        document.getElementById('setMarks').showModal();                    
+      }
+    }
+  }
+
+  function setMarkClicked(mark) {
+    marks[mark].location = locationActual;
+    marks[mark].status = 'enabled';
+    document.getElementById(mark).className = 'enabled';
+    computeWingMark();
+    }
+
+  function cancelMarkClicked(mark) {
+    marks[mark].location = null;
+    marks[mark].status = 'disabled';
+    document.getElementById(mark).className = 'disabled';
+    marks['Wing Mark'].location = null;
+    marks['Wing Mark'].status = 'disabled';
+    document.getElementById('Wing Mark').className = 'disabled';
+  }
+
+  function computeWingMark() {
+    if (marks['Top Mark'].status == 'enabled' && marks["Bottom Mark"].status == 'enabled') {
+      console.log('computing wing mark');
+      // compute wing mark location
+      if (document.getElementById('Wing Mark Direction').value == 'port')
+        wingMarkDirection = -45.0;
+      else
+        wingMarkDirection = 45.0;
+
+      marks['Wing Mark'].location = projectDistance(
+        marks['Bottom Mark'].location[1], marks['Bottom Mark'].location[0],
+        0.7071 * distance_between(
+          marks['Bottom Mark'].location[1], marks['Bottom Mark'].location[0],
+          marks['Top Mark'].location[1], marks['Top Mark'].location[0],
+        ),
+        course_between(
+          marks['Bottom Mark'].location[1], marks['Bottom Mark'].location[0],
+          marks['Top Mark'].location[1], marks['Top Mark'].location[0],
+        ) + wingMarkDirection
+      )
+      marks['Wing Mark'].status = 'enabled';
+      document.getElementById('Wing Mark').className = 'enabled';
+    }  
+  }
+
+  function ipInputChange() {
+    ipAddress = 
+        document.getElementById("ip0").value + '.' +
+        document.getElementById("ip1").value + '.' +
+        document.getElementById("ip2").value + '.' +
+        document.getElementById("ip3").value;
+    document.getElementById("ipAddress").innerHTML = ipAddress;
+    console.log(ipAddress); 
+  }
+
+  function connectDisplay() {
+
+    NUS_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+    RX_UUID =  '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+    TX_UUID =  '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+
+    let BLE_Service = null;
+    BLE_Receive = null;
+
+    // First, request a connection to a BLE device
+    navigator.bluetooth.requestDevice({
+        filters:[{name:'FRENZY'}]
+        ,optionalServices: [NUS_UUID]
+    })
+    .then(device => {
+        console.log('Connected to device:', device.name);
+        return device.gatt.connect();
+    })
+    .then(server => {
+        // Once connected, get the Nordic UART service
+        return server.getPrimaryService(NUS_UUID);
+    })
+    .then(service => {
+        // Get the RX characteristic of the Nordic UART service
+        return service.getCharacteristic(RX_UUID);
+    })
+    .then(characteristic => {
+        // Set up event listener for when the value of the characteristic changes
+        characteristic.addEventListener('characteristicvaluechanged', event => {
+        let value = event.target.value;
+        console.log('Received data:', value);
+        });
+        characteristic.startNotifications();
+    })
+    .then(() => {
+        console.log('Notifications started');
+    })
+    .catch(error => {
+        console.error('Error setting up notifications:', error);
+    });
+
+  }
+
+  function writeBLE(data) {
+    const message = new TextEncoder().encode(JSON.stringify(data));
+    if (BLE_Transmit) {
+        BLE_Transmit.writeValue(message)
+        .then(_ => {
+        console.log('Data transmitted successfully');
+        })
+        .catch(error => {
+        console.log('Error: ' + error);
+        });
+    }
+  }
+</script>
+</html>
