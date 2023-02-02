@@ -37,16 +37,16 @@ function course_between( loc1, loc2 ) {
 	return bearing + 360;
 }
 
-var options = {
-   	enableHighAccuracy: true,
-   	timeout: 7000,
-   	maximumAge: 0
-}
-
 function watchLocation(success) {
-	if (navigator.geolocation) {
-		navigator.geolocation.watchPosition(function () {}, function () {}, {});
-		navigator.geolocation.watchPosition(success, failure, options);
+	var options = {
+		enableHighAccuracy: true,
+		timeout: 7000,
+		maximumAge: 0
+    }
+ 
+	 if (navigator.geolocation) {
+		// navigator.geolocation.watchPosition(function () {}, function () {}, {});
+		navigator.geolocation.watchPosition(success, function () {}, options);
 		return "Request completed.";
 	} else { 
 		console.log("Geolocation not supported");

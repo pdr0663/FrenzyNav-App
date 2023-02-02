@@ -222,7 +222,7 @@
       m.className = stats.marks[mark].status;
     }
     setInterval('UpdateUI()', INTERVAL);
-    //watchLocation(updatePosition);
+    watchLocation(updatePosition);
   }
 
   function updatePosition(position) {
@@ -269,7 +269,7 @@
     var nxtCourse = document.getElementById('nxtCourse');
     var curCourse = document.getElementById("curCourse");
     var curSpeed = document.getElementById("curSpeed");
-    navigator.geolocation.getCurrentPosition(updatePosition);
+    //navigator.geolocation.getCurrentPosition(updatePosition);
     console.log("Speed");
     if (stats.speed) curSpeed.innerText = formatFloat(stats.speed);
     if (stats.course) curCourse.innerText = formatCourse(stats.course);
