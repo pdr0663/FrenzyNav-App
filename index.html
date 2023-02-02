@@ -162,59 +162,59 @@
   const knots = 0.5399568; // knots / (m/s)
   var setMark = document.getElementById("setMark");
   var targetLocation = null;
-  var locationQueue = [[151,-33],[151,-33],[151,-33]];
+  var locationQueue = [[-33,151],[-33,151],[-33,151]];
   var selectedMark = null;
   var globalCharacteristic = null;
   var marks = {
-    "Top Mark": {
+    "Top Mark": { // temporary mark, pinged
       status: "disabled",
       location: null,
     },
-    "Wing Mark": {
+    "Wing Mark": { // temporary martk, computed from top and bottom mark locations
       status: "disabled",
       location: null,
       direction: 'port',
     },
-    "Bottom Mark": {
+    "Bottom Mark": { // temporary mark, pinged
       status: "disabled",
       location: null,
     },
     'Ramsgate': {
       status: "enabled",
-      location: [151+09.229/60, -(33+59.193/60)]
+      location: [-(33+59.193/60),151+09.229/60]
     },
     'Brighton': {
       status: "enabled",
-      location: [151+09.694/60, -(33+57.768/60)]
+      location: [-(33+57.768/60),151+09.694/60]
     },
     'Airport': {
       status: "enabled",
-      location: [151+11.330/60, -(33+58.576/60)]
+      location: [-(33+58.576/60),151+11.330/60]
     },
     'Kurnell': {
       status: "enabled",
-      location: [151+12.128/60, -(34+0.130/60)]
+      location: [-(34+0.130/60),151+12.128/60]
     },
     'Quibray': {
       status: "enabled",
-      location: [151+11.005/60, -(34+0.137/60)]
+      location: [-(34+0.137/60),151+11.005/60]
     },
     'Outer Towra': {
       status: "enabled",
-      location: [151+9.791/60, -(33+59.434/60)]
+      location: [-(33+59.434/60),151+9.791/60]
     },
-    'Taylor Bar': {
+    'Taylor Bar': { // outermost of two piles
       status: "enabled",
-      location: [151+09.426/60, -(33+59.474/60)]
+      location: [-(33+59.474/60),151+09.426/60]
     },
     'Captain Cook': { // Captain Cook Buoy: Red pillar buoy (lat. 33º 59.9’S; long. 151º 13.1’E)
       status: "enabled",
-      location: [151+13.1/60, -(33+59.9/60)]
+      location: [-(33+59.9/60),151+13.1/60]
     },
     'Waverider': { // Yellow Spherical buoy with aerial (lat. 34 02.43’S; long. 151º 15.18’E)
                    // approximately 1NM East of Cape Baily
       status: "enabled",
-      location: [151+15.18/60, -(34+2.43/60)]
+      location: [-(34+2.43/60),151+15.18/60]
     }
   }
 
@@ -232,21 +232,15 @@
     timeOld = timeNew;
     timeNew = Date.now();
     locationOld = locationNew;
-    locationActual = [position.coords.longitude, position.coords.latitude];
+    locationActual = [position.coords.latitude,position.coords.longitude];
     locationQueue.shift();
     locationQueue.push(locationActual);
-    var lonNew = (0.1*locationQueue[0][0]+0.25*locationQueue[1][0]+0.65*locationQueue[2][0]);
-    var latNew = (0.1*locationQueue[0][1]+0.25*locationQueue[1][1]+0.65*locationQueue[2][1]);
-    locationNew = [lonNew, latNew];
+    var latNew = (0.1*locationQueue[0][0]+0.25*locationQueue[1][0]+0.65*locationQueue[2][0]);
+    var lonNew = (0.1*locationQueue[0][1]+0.25*locationQueue[1][1]+0.65*locationQueue[2][1]);
+    locationNew = [latNew, lonNew];
     if (timeNew != null && timeOld != null) {
-      speed = distance_between(locationOld[1], 
-                               locationOld[0], 
-                               locationNew[1], 
-                               locationNew[0])/((timeNew-timeOld)/1000/3600)*knots;
-      course = course_between(locationOld[1], 
-                              locationOld[0], 
-                              locationNew[1], 
-                              locationNew[0]);
+      speed = distance_between(locationOld, locationNew)/((timeNew-timeOld)/1000/3600);
+      course = course_between(locationOld, locationNew);
     }
   }
 
@@ -274,12 +268,12 @@
       if (speed) curSpeed.innerText = formatFloat(speed);
       if (course) curCourse.innerText = formatCourse(course);
       if (targetLocation) {
-        var d = distance_between(locationNew[1], locationNew[0], targetLocation[1], targetLocation[0]);
+        var d = distance_between(locationNew, targetLocation);
         if (d >= 10.0)
           nxtDistance.innerText = formatFloat(d);
         else
           nxtDistance.innerText = formatFloat(d);
-        nxtCourse.innerText = formatCourse(course_between(locationNew[1], locationNew[0], targetLocation[1], targetLocation[0]).toFixed(0));
+        nxtCourse.innerText = formatCourse(course_between(locationNew, targetLocation).toFixed(0));
       }  
     }
     stats = {
@@ -332,15 +326,9 @@
         wingMarkDirection = 45.0;
 
       marks['Wing Mark'].location = projectDistance(
-        marks['Bottom Mark'].location[1], marks['Bottom Mark'].location[0],
-        0.7071 * distance_between(
-          marks['Bottom Mark'].location[1], marks['Bottom Mark'].location[0],
-          marks['Top Mark'].location[1], marks['Top Mark'].location[0],
-        ),
-        course_between(
-          marks['Bottom Mark'].location[1], marks['Bottom Mark'].location[0],
-          marks['Top Mark'].location[1], marks['Top Mark'].location[0],
-        ) + wingMarkDirection
+        marks['Bottom Mark'].location,
+        0.7071 * distance_between(marks['Bottom Mark'].location, marks['Top Mark'].location),
+        course_between(marks['Bottom Mark'].location, marks['Top Mark'].location) + wingMarkDirection
       )
       marks['Wing Mark'].status = 'enabled';
       document.getElementById('Wing Mark').className = 'enabled';
@@ -414,7 +402,7 @@ function writeToCharacteristic(data) {
     })
     .catch(error => {
       console.log('Error: ' + error);
-  });
+    });
   }
 }
 
