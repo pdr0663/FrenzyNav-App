@@ -208,12 +208,13 @@
         status: "enabled",
         location: [-(34+2.43/60),151+15.18/60]
       }
+    }
   }
-}
 
   function startUp() {
     console.log("FRENZY NAV APP");
     for (let mark in status.marks) {
+      console.log(mark);
       var m = document.getElementById(mark);
       m.className = mark.status;
     }
