@@ -66,7 +66,7 @@
       background: #ffc7ce;
     }
 
-    .selected {
+    .target {
       color: #000000;
       background: #ffffff;
     }
@@ -154,9 +154,9 @@
     location: null,
     speed: null,
     course: null,
-    targetLocation: null,
+    targetMark: null,
     locationQueue: [[-33,151],[-33,151],[-33,151]],
-    selectedMark: null,
+    targetMark: null,
     marks: {
       "Top Mark": { // temporary mark, pinged
         status: "disabled",
@@ -217,8 +217,6 @@
     for (mark in stats.marks) {
       console.log(mark);
       var m = document.getElementById(mark);
-      console.log(mark);
-      console.log(stats)
       m.className = stats.marks[mark].status;
     }
     setInterval('UpdateUI()', INTERVAL);
@@ -227,24 +225,20 @@
 
   function updatePosition(position) {
     var time = Date.now();
-    var locationRaw = [position.coords.latitude,position.coords.longitude];
-    stats.locationRaw = locationRaw;
-    var locationQueue = stats.locationQueue;
-    locationQueue.shift();
-    locationQueue.push(locationRaw);
-    var latNew = (0.1*locationQueue[0][0]+0.25*locationQueue[1][0]+0.65*locationQueue[2][0]);
-    var lonNew = (0.1*locationQueue[0][1]+0.25*locationQueue[1][1]+0.65*locationQueue[2][1]);
-    var location = [latNew, lonNew];
-    stats.locationQueue = locationQueue;
+    stats.locationRaw = [position.coords.latitude,position.coords.longitude];
+    stats.locationQueue.shift();
+    stats.locationQueue.push(stats.locationRaw);
+    location = [(0.1*stats.locationQueue[0][0]+0.25*stats.locationQueue[1][0]+0.65*stats.locationQueue[2][0]),
+                (0.1*stats.locationQueue[0][1]+0.25*stats.locationQueue[1][1]+0.65*stats.locationQueue[2][1])];
     if (time != null && stats.time) {
       stats.speed = distance_between(stats.location, location)/((time-stats.time)/1000/3600); // in knots since distance is NM
       stats.course = course_between(stats.location, location);
     }
-    stats.time = time;
-    if (stats.targetLocation) {
-      stats.targetDistance = distance_between(location, targetLocation);
-      stats.targetCourse =   course_between(locationNew, targetLocation);
+    if (stats.targetMark) {
+      stats.targetDistance = distance_between(location, stats.marks.targetMark.location);
+      stats.targetCourse =   course_between(location, stats.marks.targetMark.location);
     }
+    stats.time = time;
     stats.location = location;
   }
 
@@ -281,39 +275,35 @@
   }
 
   function markButtonClicked(mark) {
-    if (stats.selectedMark) document.getElementById(stats.selectedMark).className = stats.marks[stats.selectedMark].status;
+    if (stats.targetMark) document.getElementById(stats.targetMark).className = stats.marks[stats.targetMark].status;
     if (stats.marks[mark].status == "enabled") {
-      document.getElementById(mark).className = "selected";
-      stats.targetLocation = stats.marks[mark].location;
-      stats.selectedMark = mark;
-    } else {
-      stats.selectedMark = null;
-      if (mark != 'Wing Mark') {
-        document.getElementById('setMarks').showModal();                    
-      }
+      document.getElementById(mark).className = "target";
+      stats.targetMark = mark;
+    } else { // clicked on a disabled button, assume user meant to cancel target
+      stats.targetMark = null;
     }
   }
 
   function setMarkClicked(mark) {
     stats.marks[mark].location = stats.locationRaw;
-    stats.marks[mark].stats = 'enabled';
+    stats.marks[mark].status = 'enabled';
     document.getElementById(mark).className = 'enabled';
     computeWingMark();
     }
 
   function cancelMarkClicked(mark) {
     stats.marks[mark].location = null;
-    stats.marks[mark].stats = 'disabled';
+    stats.marks[mark].status = 'disabled';
     document.getElementById(mark).className = 'disabled';
+    // Cancelling any mark will necessitate cancelling wing mark
     stats.marks['Wing Mark'].location = null;
-    stats.marks['Wing Mark'].stats = 'disabled';
+    stats.marks['Wing Mark'].status = 'disabled';
     document.getElementById('Wing Mark').className = 'disabled';
   }
 
   function computeWingMark() {
-    if (stats.marks['Top Mark'].stats == 'enabled' && stats.marks["Bottom Mark"].stats == 'enabled') {
+    if (stats.marks['Top Mark'].status == 'enabled' && stats.marks["Bottom Mark"].status == 'enabled') {
       console.log('computing wing mark');
-      // compute wing mark location
       if (document.getElementById('Wing Mark Direction').value == 'port')
         wingMarkDirection = -45.0;
       else
@@ -324,7 +314,7 @@
         0.7071 * distance_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location),
         course_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location) + wingMarkDirection
       )
-      stats.marks['Wing Mark'].stats = 'enabled';
+      stats.marks['Wing Mark'].status = 'enabled';
       document.getElementById('Wing Mark').className = 'enabled';
     }  
   }
