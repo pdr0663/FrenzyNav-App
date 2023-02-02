@@ -213,9 +213,9 @@
 
   function startUp() {
     console.log("FRENZY NAV APP");
-    for (let mark in marks) {
+    for (let mark in status.marks) {
       var m = document.getElementById(mark);
-      m.className = marks[mark].status;
+      m.className = mark.status;
     }
     setInterval('UpdateUI()', INTERVAL);
     //watchLocation(updatePosition);
