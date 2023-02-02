@@ -20,15 +20,18 @@ var longitude = null;
 var EARTH = 3440.06479 // Radius of the EARTH in nautical miles
 
 function distance_between( loc1, loc2 ) {
+	console.log("distance-between: loc1=",loc1," loc2=",loc2);
 	var x = ( loc2[1] - loc1[1] ) * Math.PI / 180 * Math.cos( ( ( loc1[0] + loc2[0] ) / 2 ) * Math.PI / 180 );
 	var y = ( loc2[0] - loc1[0] ) * Math.PI / 180;
-	return EARTH * Math.sqrt( x * x + y * y );
+	var d = EARTH * Math.sqrt( x * x + y * y );
+	console.log(" d=",d);
+	return d
 }
 
 function course_between( loc1, loc2 ) {
 	var x = EARTH * ( loc2[1] - loc1[1] ) * Math.PI / 180 * Math.cos( ( ( loc1[0] + loc2[0] ) / 2 ) * Math.PI / 180 );
 	var y = EARTH * ( loc2[0] - loc1[0] ) * Math.PI / 180;
-	bearing = 90 - 180 / Math.PI * Math.atan2(y, x);
+	var bearing = 90 - 180 / Math.PI * Math.atan2(y, x);
 	if (bearing >= 0)
 		return bearing;
 	return bearing + 360;

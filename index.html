@@ -151,12 +151,14 @@
   var INTERVAL = 2000; // milliseconds
   //var setMark = document.getElementById("setMark");
   var stats = {
-    location: null,
+    time: null,
+    location: [-33,151], // init with dummy location data
+    locationQueue: [[-33,151],[-33,151],[-33,151]],
     speed: null,
     course: null,
     targetMark: null,
-    locationQueue: [[-33,151],[-33,151],[-33,151]],
-    targetMark: null,
+    targetDistance: 99.9,
+    targetCourse: 0,
     marks: {
       "Top Mark": { // temporary mark, pinged
         status: "disabled",
@@ -228,15 +230,15 @@
     stats.locationRaw = [position.coords.latitude,position.coords.longitude];
     stats.locationQueue.shift();
     stats.locationQueue.push(stats.locationRaw);
-    location = [(0.1*stats.locationQueue[0][0]+0.25*stats.locationQueue[1][0]+0.65*stats.locationQueue[2][0]),
+    var location = [(0.1*stats.locationQueue[0][0]+0.25*stats.locationQueue[1][0]+0.65*stats.locationQueue[2][0]),
                 (0.1*stats.locationQueue[0][1]+0.25*stats.locationQueue[1][1]+0.65*stats.locationQueue[2][1])];
     if (time != null && stats.time) {
       stats.speed = distance_between(stats.location, location)/((time-stats.time)/1000/3600); // in knots since distance is NM
       stats.course = course_between(stats.location, location);
     }
     if (stats.targetMark) {
-      stats.targetDistance = distance_between(location, stats.marks.targetMark.location);
-      stats.targetCourse =   course_between(location, stats.marks.targetMark.location);
+      stats.targetDistance = distance_between(location, stats.marks[stats.targetMark].location);
+      stats.targetCourse =   course_between(location, stats.marks[stats.targetMark].location);
     }
     stats.time = time;
     stats.location = location;
@@ -247,12 +249,14 @@
   }
 
   function formatFloat(num) {
+    console.log("formatFloat: num=",num)
     if (num > 99.9 || num < 0.0) return '-.--';
     if (num >= 10.0) return num.toFixed(1);
     return num.toFixed(2);
   }
 
   function formatCourse(num) {
+    console.log("formatCourse: num=",num)
     if (num < 0) return "---";
     str = (num % 360.0).toFixed(0).toString();
     if (str.length == 3) return str;      
@@ -266,19 +270,21 @@
     var curCourse = document.getElementById("curCourse");
     var curSpeed = document.getElementById("curSpeed");
     navigator.geolocation.getCurrentPosition(updatePosition);
+    console.log("Speed");
     if (stats.speed) curSpeed.innerText = formatFloat(stats.speed);
     if (stats.course) curCourse.innerText = formatCourse(stats.course);
-    if (stats.targetLocation) {
+    if (stats.targetMark) {
+      console.log("Distance");
       nxtDistance.innerText = formatFloat(stats.targetDistance);
-      nxtCourse.innerText = formatCourse(stats.targetCourse).toFixed(0);
+      nxtCourse.innerText = formatCourse(stats.targetCourse);
     }  
   }
 
   function markButtonClicked(mark) {
     if (stats.targetMark) document.getElementById(stats.targetMark).className = stats.marks[stats.targetMark].status;
     if (stats.marks[mark].status == "enabled") {
-      document.getElementById(mark).className = "target";
       stats.targetMark = mark;
+      document.getElementById(mark).className = "target";
     } else { // clicked on a disabled button, assume user meant to cancel target
       stats.targetMark = null;
     }
