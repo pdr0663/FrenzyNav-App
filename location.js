@@ -22,7 +22,7 @@ var EARTH = 3440.06479 // Radius of the EARTH in nautical miles
 function distance_between( loc1, loc2 ) {
 	var x = ( loc2[1] - loc1[1] ) * Math.PI / 180 * Math.cos( ( ( loc1[0] + loc2[0] ) / 2 ) * Math.PI / 180 );
 	var y = ( loc2[0] - loc1[0] ) * Math.PI / 180;
-	return Earth * Math.sqrt( x * x + y * y );
+	return EARTH * Math.sqrt( x * x + y * y );
 }
 
 function course_between( loc1, loc2 ) {

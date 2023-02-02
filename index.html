@@ -150,7 +150,7 @@
 <script>
   var INTERVAL = 2000; // milliseconds
   //var setMark = document.getElementById("setMark");
-  var status = {
+  var stats = {
     location: null,
     speed: null,
     course: null,
@@ -213,35 +213,39 @@
 
   function startUp() {
     console.log("FRENZY NAV APP");
-    for (let mark in status.marks) {
+//    for (let mark in stats.marks) {
+    for (mark in stats.marks) {
       console.log(mark);
       var m = document.getElementById(mark);
-      m.className = mark.status;
+      console.log(mark);
+      console.log(stats)
+      m.className = stats.marks[mark].status;
     }
     setInterval('UpdateUI()', INTERVAL);
     //watchLocation(updatePosition);
   }
 
   function updatePosition(position) {
-    time = Date.now();
-    locationRaw = [position.coords.latitude,position.coords.longitude];
-    locationQueue = status.locationQueue;
+    var time = Date.now();
+    var locationRaw = [position.coords.latitude,position.coords.longitude];
+    stats.locationRaw = locationRaw;
+    var locationQueue = stats.locationQueue;
     locationQueue.shift();
     locationQueue.push(locationRaw);
     var latNew = (0.1*locationQueue[0][0]+0.25*locationQueue[1][0]+0.65*locationQueue[2][0]);
     var lonNew = (0.1*locationQueue[0][1]+0.25*locationQueue[1][1]+0.65*locationQueue[2][1]);
-    location = [latNew, lonNew];
-    if (time != null && status.time) {
-      status.speed = distance_between(status.location, location)/((time-status.time)/1000/3600); // in knots since distance is NM
-      status.course = course_between(status.location, location);
+    var location = [latNew, lonNew];
+    stats.locationQueue = locationQueue;
+    if (time != null && stats.time) {
+      stats.speed = distance_between(stats.location, location)/((time-stats.time)/1000/3600); // in knots since distance is NM
+      stats.course = course_between(stats.location, location);
     }
-    if (targetLocation) {
-      status.targetDistance = distance_between(location, targetLocation);
-      status.targetCourse =   course_between(locationNew, targetLocation);
+    stats.time = time;
+    if (stats.targetLocation) {
+      stats.targetDistance = distance_between(location, targetLocation);
+      stats.targetCourse =   course_between(locationNew, targetLocation);
     }
-    status.time = time;
-    status.location = location;
-    status.locationQueue = locationQueue;
+    stats.location = location;
   }
 
   function error(err) {
@@ -268,22 +272,22 @@
     var curCourse = document.getElementById("curCourse");
     var curSpeed = document.getElementById("curSpeed");
     navigator.geolocation.getCurrentPosition(updatePosition);
-    if (status.speed) curSpeed.innerText = formatFloat(speed);
-    if (status.course) curCourse.innerText = formatCourse(course);
-    if (status.targetLocation) {
-      nxtDistance.innerText = formatFloat(status.targetDistance);
-      nxtCourse.innerText = formatCourse(status.targetCourse).toFixed(0);
+    if (stats.speed) curSpeed.innerText = formatFloat(stats.speed);
+    if (stats.course) curCourse.innerText = formatCourse(stats.course);
+    if (stats.targetLocation) {
+      nxtDistance.innerText = formatFloat(stats.targetDistance);
+      nxtCourse.innerText = formatCourse(stats.targetCourse).toFixed(0);
     }  
   }
 
   function markButtonClicked(mark) {
-    if (selectedMark) document.getElementById(selectedMark).className = marks[selectedMark].status;
-    if (marks[mark].status == "enabled") {
+    if (stats.selectedMark) document.getElementById(stats.selectedMark).className = stats.marks[stats.selectedMark].status;
+    if (stats.marks[mark].status == "enabled") {
       document.getElementById(mark).className = "selected";
-      targetLocation = marks[mark].location;
-      selectedMark = mark;
+      stats.targetLocation = stats.marks[mark].location;
+      stats.selectedMark = mark;
     } else {
-      selectedMark = null;
+      stats.selectedMark = null;
       if (mark != 'Wing Mark') {
         document.getElementById('setMarks').showModal();                    
       }
@@ -291,23 +295,23 @@
   }
 
   function setMarkClicked(mark) {
-    marks[mark].location = locationActual;
-    marks[mark].status = 'enabled';
+    stats.marks[mark].location = stats.locationRaw;
+    stats.marks[mark].stats = 'enabled';
     document.getElementById(mark).className = 'enabled';
     computeWingMark();
     }
 
   function cancelMarkClicked(mark) {
-    marks[mark].location = null;
-    marks[mark].status = 'disabled';
+    stats.marks[mark].location = null;
+    stats.marks[mark].stats = 'disabled';
     document.getElementById(mark).className = 'disabled';
-    marks['Wing Mark'].location = null;
-    marks['Wing Mark'].status = 'disabled';
+    stats.marks['Wing Mark'].location = null;
+    stats.marks['Wing Mark'].stats = 'disabled';
     document.getElementById('Wing Mark').className = 'disabled';
   }
 
   function computeWingMark() {
-    if (marks['Top Mark'].status == 'enabled' && marks["Bottom Mark"].status == 'enabled') {
+    if (stats.marks['Top Mark'].stats == 'enabled' && stats.marks["Bottom Mark"].stats == 'enabled') {
       console.log('computing wing mark');
       // compute wing mark location
       if (document.getElementById('Wing Mark Direction').value == 'port')
@@ -315,12 +319,12 @@
       else
         wingMarkDirection = 45.0;
 
-      marks['Wing Mark'].location = projectDistance(
-        marks['Bottom Mark'].location,
-        0.7071 * distance_between(marks['Bottom Mark'].location, marks['Top Mark'].location),
-        course_between(marks['Bottom Mark'].location, marks['Top Mark'].location) + wingMarkDirection
+      stats.marks['Wing Mark'].location = projectDistance(
+        stats.marks['Bottom Mark'].location,
+        0.7071 * distance_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location),
+        course_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location) + wingMarkDirection
       )
-      marks['Wing Mark'].status = 'enabled';
+      stats.marks['Wing Mark'].stats = 'enabled';
       document.getElementById('Wing Mark').className = 'enabled';
     }  
   }
