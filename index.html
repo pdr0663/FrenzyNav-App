@@ -1,5 +1,6 @@
-<html>
+<!DOCTYPE html><html>
 <head>
+  <title>Frenzy Navigation App</title>
   <style>
     body * {
       font-family: "Monaco", "Lucida Console", "Trebuchet MS", monospace;
@@ -147,101 +148,99 @@
 </body>
 <script src="./location.js"></script>
 <script>
-  var nxtDistance = document.getElementById('nxtDistance');
-  var nxtCourse = document.getElementById('nxtCourse');
-  var curCourse = document.getElementById("curCourse");
-  var curSpeed = document.getElementById("curSpeed");
-  var locationNew = null;
-  var locationOld = null;
-  var locationActual = null;
-  var timeNew = null;
-  var timeOld = null;
-  var interval = 2000; // milliseconds
-  var speed = null;
-  var course = null;
-  const knots = 0.5399568; // knots / (m/s)
-  var setMark = document.getElementById("setMark");
-  var targetLocation = null;
-  var locationQueue = [[-33,151],[-33,151],[-33,151]];
-  var selectedMark = null;
-  var globalCharacteristic = null;
-  var marks = {
-    "Top Mark": { // temporary mark, pinged
-      status: "disabled",
-      location: null,
-    },
-    "Wing Mark": { // temporary martk, computed from top and bottom mark locations
-      status: "disabled",
-      location: null,
-      direction: 'port',
-    },
-    "Bottom Mark": { // temporary mark, pinged
-      status: "disabled",
-      location: null,
-    },
-    'Ramsgate': {
-      status: "enabled",
-      location: [-(33+59.193/60),151+09.229/60]
-    },
-    'Brighton': {
-      status: "enabled",
-      location: [-(33+57.768/60),151+09.694/60]
-    },
-    'Airport': {
-      status: "enabled",
-      location: [-(33+58.576/60),151+11.330/60]
-    },
-    'Kurnell': {
-      status: "enabled",
-      location: [-(34+0.130/60),151+12.128/60]
-    },
-    'Quibray': {
-      status: "enabled",
-      location: [-(34+0.137/60),151+11.005/60]
-    },
-    'Outer Towra': {
-      status: "enabled",
-      location: [-(33+59.434/60),151+9.791/60]
-    },
-    'Taylor Bar': { // outermost of two piles
-      status: "enabled",
-      location: [-(33+59.474/60),151+09.426/60]
-    },
-    'Captain Cook': { // Captain Cook Buoy: Red pillar buoy (lat. 33º 59.9’S; long. 151º 13.1’E)
-      status: "enabled",
-      location: [-(33+59.9/60),151+13.1/60]
-    },
-    'Waverider': { // Yellow Spherical buoy with aerial (lat. 34 02.43’S; long. 151º 15.18’E)
-                   // approximately 1NM East of Cape Baily
-      status: "enabled",
-      location: [-(34+2.43/60),151+15.18/60]
-    }
+  var INTERVAL = 2000; // milliseconds
+  //var setMark = document.getElementById("setMark");
+  var status = {
+    location: null,
+    speed: null,
+    course: null,
+    targetLocation: null,
+    locationQueue: [[-33,151],[-33,151],[-33,151]],
+    selectedMark: null,
+    marks: {
+      "Top Mark": { // temporary mark, pinged
+        status: "disabled",
+        location: null,
+      },
+      "Wing Mark": { // temporary mark, computed from top and bottom mark locations
+        status: "disabled",
+        location: null,
+        direction: 'port',
+      },
+      "Bottom Mark": { // temporary mark, pinged
+        status: "disabled",
+        location: null,
+      },
+      'Ramsgate': {
+        status: "enabled",
+        location: [-(33+59.193/60),151+09.229/60]
+      },
+      'Brighton': {
+        status: "enabled",
+        location: [-(33+57.768/60),151+09.694/60]
+      },
+      'Airport': {
+        status: "enabled",
+        location: [-(33+58.576/60),151+11.330/60]
+      },
+      'Kurnell': {
+        status: "enabled",
+        location: [-(34+0.130/60),151+12.128/60]
+      },
+      'Quibray': {
+        status: "enabled",
+        location: [-(34+0.137/60),151+11.005/60]
+      },
+      'Outer Towra': {
+        status: "enabled",
+        location: [-(33+59.434/60),151+9.791/60]
+      },
+      'Taylor Bar': { // outermost of two piles
+        status: "enabled",
+        location: [-(33+59.474/60),151+09.426/60]
+      },
+      'Captain Cook': { // Captain Cook Buoy: Red pillar buoy (lat. 33º 59.9’S; long. 151º 13.1’E)
+        status: "enabled",
+        location: [-(33+59.9/60),151+13.1/60]
+      },
+      'Waverider': { // Yellow Spherical buoy with aerial (lat. 34 02.43’S; long. 151º 15.18’E)
+                    // approximately 1NM East of Cape Baily
+        status: "enabled",
+        location: [-(34+2.43/60),151+15.18/60]
+      }
   }
+}
 
   function startUp() {
+    console.log("FRENZY NAV APP");
     for (let mark in marks) {
-      console.log(mark);
       var m = document.getElementById(mark);
       m.className = marks[mark].status;
     }
-    setInterval('UpdateUI()', interval);
+    setInterval('UpdateUI()', INTERVAL);
     //watchLocation(updatePosition);
   }
 
   function updatePosition(position) {
-    timeOld = timeNew;
-    timeNew = Date.now();
-    locationOld = locationNew;
-    locationActual = [position.coords.latitude,position.coords.longitude];
+    time = Date.now();
+    locationRaw = [position.coords.latitude,position.coords.longitude];
+    locationQueue = status.locationQueue;
     locationQueue.shift();
-    locationQueue.push(locationActual);
+    locationQueue.push(locationRaw);
     var latNew = (0.1*locationQueue[0][0]+0.25*locationQueue[1][0]+0.65*locationQueue[2][0]);
     var lonNew = (0.1*locationQueue[0][1]+0.25*locationQueue[1][1]+0.65*locationQueue[2][1]);
-    locationNew = [latNew, lonNew];
-    if (timeNew != null && timeOld != null) {
-      speed = distance_between(locationOld, locationNew)/((timeNew-timeOld)/1000/3600);
-      course = course_between(locationOld, locationNew);
+    location = [latNew, lonNew];
+    if (time != null && status.time) {
+      status.speed = distance_between(status.location, location)/((time-status.time)/1000/3600); // in knots since distance is NM
+      status.course = course_between(status.location, location);
     }
+    if (targetLocation) {
+      status.targetDistance = distance_between(location, targetLocation);
+      status.targetCourse =   course_between(locationNew, targetLocation);
+    }
+    status.time = time;
+    status.location = location;
+    status.locationQueue = locationQueue;
   }
 
   function error(err) {
@@ -263,27 +262,17 @@
   }
 
   function UpdateUI() {
+    var nxtDistance = document.getElementById('nxtDistance');
+    var nxtCourse = document.getElementById('nxtCourse');
+    var curCourse = document.getElementById("curCourse");
+    var curSpeed = document.getElementById("curSpeed");
     navigator.geolocation.getCurrentPosition(updatePosition);
-    if (locationNew != null && locationOld != null) {
-      if (speed) curSpeed.innerText = formatFloat(speed);
-      if (course) curCourse.innerText = formatCourse(course);
-      if (targetLocation) {
-        var d = distance_between(locationNew, targetLocation);
-        if (d >= 10.0)
-          nxtDistance.innerText = formatFloat(d);
-        else
-          nxtDistance.innerText = formatFloat(d);
-        nxtCourse.innerText = formatCourse(course_between(locationNew, targetLocation).toFixed(0));
-      }  
-    }
-    stats = {
-      curSpeed: curSpeed.innerText,
-      curCourse: curCourse.innerText,
-      nxtDistance: nxtDistance.innerText,
-      nxtCourse: nxtCourse.innerText
-    };
-    console.log(JSON.stringify(stats));
-    writeToCharacteristic(stats);
+    if (status.speed) curSpeed.innerText = formatFloat(speed);
+    if (status.course) curCourse.innerText = formatCourse(course);
+    if (status.targetLocation) {
+      nxtDistance.innerText = formatFloat(status.targetDistance);
+      nxtCourse.innerText = formatCourse(status.targetCourse).toFixed(0);
+    }  
   }
 
   function markButtonClicked(mark) {
@@ -334,77 +323,6 @@
       document.getElementById('Wing Mark').className = 'enabled';
     }  
   }
-
-function ipInputChange() {
-  ipAddress = 
-    document.getElementById("ip0").value + '.' +
-    document.getElementById("ip1").value + '.' +
-    document.getElementById("ip2").value + '.' +
-    document.getElementById("ip3").value;
-  document.getElementById("ipAddress").innerHTML = ipAddress;
-  console.log(ipAddress); 
-}
-
-function stringToArrayBuffer(str) {
-  var buf = new ArrayBuffer(str.length);
-  var bufView = new Uint8Array(buf);
-  for (var i = 0, strLen = str.length; i < strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
-  }
-  return buf;
-}
-
-function connectDisplay() {
-  if ('bluetooth' in navigator) {
-    console.log('Web Bluetooth API is supported');
-  } else {
-    console.log('Web Bluetooth API is not supported');
-  }
-
-  let device;
-  NUS_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-  RX_UUID =  '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
-  TX_UUID =  '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
-
-  // Next, request a Bluetooth device
-  navigator.bluetooth.requestDevice({
-      filters:[{name:'FRENZY'}]
-      ,optionalServices: [NUS_UUID]
-  }).then(selectedDevice => {
-    device = selectedDevice;
-    console.log('Device Name: ' + device.name);
-    console.log('Device Id: ' + device.id);
-
-    // Connect to the device
-    return device.gatt.connect();
-  }).then(server => {
-    // Get the Custom Service
-    return server.getPrimaryService(NUS_UUID);
-  }).then(service => {
-    // Get the Custom Characteristic
-    return service.getCharacteristic(RX_UUID);
-  }).then(characteristic => {
-    // Save the characteristic for later use
-    globalCharacteristic = characteristic;
-    console.log('Characteristic saved');
-  }).catch(error => {
-    console.log('Error: ' + error);
-  });
-}
-
-function writeToCharacteristic(data) {
-  const message = new TextEncoder().encode(JSON.stringify(data));
-
-  if (globalCharacteristic) {
-    globalCharacteristic.writeValue(message)
-    .then(_ => {
-      console.log('Data transmitted successfully');
-    })
-    .catch(error => {
-      console.log('Error: ' + error);
-    });
-  }
-}
 
 </script>
 </html>
