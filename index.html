@@ -249,14 +249,12 @@
   }
 
   function formatFloat(num) {
-    console.log("formatFloat: num=",num)
     if (num > 99.9 || num < 0.0) return '-.--';
     if (num >= 10.0) return num.toFixed(1);
     return num.toFixed(2);
   }
 
   function formatCourse(num) {
-    console.log("formatCourse: num=",num)
     if (num < 0) return "---";
     str = (num % 360.0).toFixed(0).toString();
     if (str.length == 3) return str;      
@@ -270,11 +268,9 @@
     var curCourse = document.getElementById("curCourse");
     var curSpeed = document.getElementById("curSpeed");
     //navigator.geolocation.getCurrentPosition(updatePosition);
-    console.log("Speed");
     if (stats.speed) curSpeed.innerText = formatFloat(stats.speed);
     if (stats.course) curCourse.innerText = formatCourse(stats.course);
     if (stats.targetMark) {
-      console.log("Distance");
       nxtDistance.innerText = formatFloat(stats.targetDistance);
       nxtCourse.innerText = formatCourse(stats.targetCourse);
     }  

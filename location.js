@@ -20,11 +20,9 @@ var longitude = null;
 var EARTH = 3440.06479 // Radius of the EARTH in nautical miles
 
 function distance_between( loc1, loc2 ) {
-	console.log("distance-between: loc1=",loc1," loc2=",loc2);
 	var x = ( loc2[1] - loc1[1] ) * Math.PI / 180 * Math.cos( ( ( loc1[0] + loc2[0] ) / 2 ) * Math.PI / 180 );
 	var y = ( loc2[0] - loc1[0] ) * Math.PI / 180;
 	var d = EARTH * Math.sqrt( x * x + y * y );
-	console.log(" d=",d);
 	return d
 }
 
@@ -81,10 +79,6 @@ function projectDistance(startLat, startLon, distance, bearing) {
 												Math.cos(sLat) * Math.sin(d) * Math.cos(b));
 	const dLon = sLon + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(sLat),
 																		Math.cos(d) - Math.sin(sLat) * Math.sin(dLat));
-
-	// Convert destination coordinates back to degrees
-	const destinationLatitude = dLat * 180 / Math.PI;
-	const destinationLongitude = dLon * 180 / Math.PI;
 
 	// Create a new point object for the destination coordinates
 	return [dLat  * 180 / Math.PI, dLon  * 180 / Math.PI];
