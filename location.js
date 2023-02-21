@@ -69,6 +69,8 @@ function failure(error) {
 }
 
 function projectDistance(start, distance, bearing) {
+	console.log('project distance');
+	console.log(start, distance, bearing);
 	const b = bearing * Math.PI / 180;
 	const d = distance / 6371;  // 6371 is the approximate radius of the Earth in kilometers
 	const sLat = start[0] * Math.PI / 180;
