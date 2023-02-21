@@ -15,13 +15,12 @@
  * @return { number } Distance in km
  */
 
-var latitude = null;
-var longitude = null;
 var EARTH = 3440.06479 // Radius of the EARTH in nautical miles
 
 function distance_between( loc1, loc2 ) {
-	var x = ( loc2[1] - loc1[1] ) * Math.PI / 180 * Math.cos( ( ( loc1[0] + loc2[0] ) / 2 ) * Math.PI / 180 );
-	var y = ( loc2[0] - loc1[0] ) * Math.PI / 180;
+	// simple pythagorean distance for small distances
+	var x = ( loc2[1] - loc1[1] ) * Math.PI / 180 * Math.cos( ( ( loc1[0] + loc2[0] ) / 2 ) * Math.PI / 180 ); // longitude
+	var y = ( loc2[0] - loc1[0] ) * Math.PI / 180; // latitude
 	var d = EARTH * Math.sqrt( x * x + y * y );
 	return d
 }
@@ -69,11 +68,11 @@ function failure(error) {
 	}
 }
 
-function projectDistance(startLat, startLon, distance, bearing) {
+function projectDistance(start, distance, bearing) {
 	const b = bearing * Math.PI / 180;
 	const d = distance / 6371;  // 6371 is the approximate radius of the Earth in kilometers
-	const sLat = startLat * Math.PI / 180;
-	const sLon = startLon * Math.PI / 180;
+	const sLat = start[0] * Math.PI / 180;
+	const sLon = start[1] * Math.PI / 180;
 
 	const dLat = Math.asin(Math.sin(sLat) * Math.cos(d) +
 												Math.cos(sLat) * Math.sin(d) * Math.cos(b));
