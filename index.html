@@ -304,7 +304,8 @@
   }
 
   function computeWingMark() {
-    if (stats.marks['Top Mark'].status == 'enabled' && stats.marks["Bottom Mark"].status == 'enabled') {
+    if (stats.marks['Top Mark'].status == 'enabled' && stats.marks["Bottom Mark"].status == 'enabled') &&
+      (stats.marks['Top Mark'].location != stats.marks["Bottom Mark"].location) {
       console.log('computing wing mark');
       if (document.getElementById('Wing Mark Direction').value == 'port')
         wingMarkDirection = -45.0;
