@@ -310,7 +310,11 @@
         wingMarkDirection = -45.0;
       else
         wingMarkDirection = 45.0;
-
+      
+      console.log("Debug");
+      console.log(stats.marks['Wing Mark'].location);
+      console.log(stats.marks['Bottom Mark'].location);
+      
       stats.marks['Wing Mark'].location = projectDistance(
         stats.marks['Bottom Mark'].location,
         0.7071 * distance_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location),
@@ -318,6 +322,9 @@
       )
       stats.marks['Wing Mark'].status = 'enabled';
       document.getElementById('Wing Mark').className = 'enabled';
+      
+      console.log(stats.marks['Wing Mark'].location);
+      console.log('compute wing mark finished');
     }  
   }
 
