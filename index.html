@@ -227,10 +227,12 @@
 
   function updatePosition(position) {
     var time = Date.now();
-    newPos = [position.coords.latitude,position.coords.longitude]
-    deltaX = distance_between(stats.locationRaw, newPos);
-    deltaC = course_between(stats.locationRaw, newPos);
-    console.log(deltaX, "@", deltaC);
+    newPos = [position.coords.latitude,position.coords.longitude];
+    if (stats.locationRaw) {
+      deltaX = distance_between(stats.locationRaw, newPos);
+      deltaC = course_between(stats.locationRaw, newPos);
+      console.log(deltaX, "@", deltaC);
+    }
     stats.locationRaw = newPos;
     stats.locationQueue.shift();
     stats.locationQueue.push(stats.locationRaw);
