@@ -231,7 +231,7 @@
     if (stats.locationRaw) {
       var deltaX = distance_between(stats.locationRaw, newPos);
       var deltaC = course_between(stats.locationRaw, newPos);
-      console.log(deltaX, "@", deltaC);
+      console.log((deltaX*1852).toFixed(2), "@", deltaC.toFixed(0));
     }
     stats.locationRaw = newPos;
     stats.locationQueue.shift();
