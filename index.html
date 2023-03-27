@@ -130,13 +130,13 @@
 </div>
 
 <dialog id="setMarks" class="dialog">
-  <button id="setTopMark" style="position:absolute; width:35%; left:10%; height:15%; top:10%"
+  <button id="setTopMark" class="enabled" style="position:absolute; width:45%; left:2.5%; height:30%; top:2.5%"
     onclick="document.getElementById('setMarks').close(); setMarkClicked('Top Mark')">SET TOP MARK</button>
-  <button id="cancelTopMark" style="position:absolute; width:35%; left:55%; height:15%; top:10%"
+  <button id="cancelTopMark" class="disabled" style="position:absolute; width:45%; left:52.5%; height:30%; top:2.5%"
     onclick="document.getElementById('setMarks').close(); cancelMarkClicked('Top Mark')">CLEAR TOP MARK</button>
-  <button id="setBottomMark" style="position:absolute; width:35%; left:10%; height:15%; top:30%"
+  <button id="setBottomMark" class="enabled" style="position:absolute; width:45%; left:2.5%; height:30%; top:40%"
     onclick="document.getElementById('setMarks').close(); setMarkClicked('Bottom Mark')">SET BOTTOM MARK</button>
-  <button id="cancelBottomMark" style="position:absolute; width:35%; left:55%; height:15%; top:30%"
+  <button id="cancelBottomMark" class="disabled" style="position:absolute; width:45%; left:52.5%; height:30%; top:40%"
     onclick="document.getElementById('setMarks').close(); cancelMarkClicked('Bottom Mark')">CLEAR BOTTOM MARK</button>
   <button id="setMarksCancel" style="position:absolute; width:60%; left:20%; height:15%; top:80%"
     onclick="document.getElementById('setMarks').close()">Cancel</button>
