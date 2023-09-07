@@ -17,6 +17,15 @@
 
 var EARTH = 3440.06479 // Radius of the EARTH in nautical miles
 
+function fix_bearing(bearing) {
+	if (bearing >= 360.0)
+		return bearing -360.0;
+	else if (bearing < 0.0)
+	    return bearing + 360.0;
+	else
+		return bearing;
+}
+
 function distance_between( loc1, loc2 ) {
 	// simple pythagorean distance for small distances
 	var x = ( loc2[1] - loc1[1] ) * Math.PI / 180 * Math.cos( ( ( loc1[0] + loc2[0] ) / 2 ) * Math.PI / 180 ); // longitude
@@ -29,9 +38,7 @@ function course_between( loc1, loc2 ) {
 	var x = EARTH * ( loc2[1] - loc1[1] ) * Math.PI / 180 * Math.cos( ( ( loc1[0] + loc2[0] ) / 2 ) * Math.PI / 180 );
 	var y = EARTH * ( loc2[0] - loc1[0] ) * Math.PI / 180;
 	var bearing = 90 - 180 / Math.PI * Math.atan2(y, x);
-	if (bearing >= 0)
-		return bearing;
-	return bearing + 360;
+	return fix_bearing(bearing)
 }
 
 function watchLocation(success) {
