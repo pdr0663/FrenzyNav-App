@@ -215,13 +215,6 @@
 
   function startUp() {
     console.log("FRENZY NAV APP");
-    for (mark in stats.marks) {
-      console.log(mark);
-      var m = document.getElementById(mark);
-      m.className = stats.marks[mark].status;
-    }
-    setInterval('UpdateUI()', INTERVAL);
-    watchLocation(updatePosition);
 
     // Check for previous save of top and bottom marks...
     const topMark = localStorage.getItem('Top Mark');
@@ -240,6 +233,15 @@
     } else {
       console.log('Bottom mark not previously saved');
     }
+
+    // Update status of mark buttons on home page
+    for (mark in stats.marks) {
+      console.log(mark);
+      var m = document.getElementById(mark);
+      m.className = stats.marks[mark].status;
+    }
+    setInterval('UpdateUI()', INTERVAL);
+    watchLocation(updatePosition);
   }  
 
   function updatePosition(position) {
