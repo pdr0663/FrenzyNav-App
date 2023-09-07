@@ -220,16 +220,16 @@
     const topMark = localStorage.getItem('Top Mark');
     if (topMark !== null) {
       console.log('Last saved Top Mark:', topMark);
-      stats['Top Mark'].location = topMark;
-      stats['Top Mark'].status = 'enabled';
+      stats.marks['Top Mark'].location = topMark;
+      stats.marks['Top Mark'].status = 'enabled';
     } else {
       console.log('Top mark not previously saved');
     }
     const bottomMark = localStorage.getItem('Bottom Mark');
     if (bottomMark !== null) {
       console.log('Last saved Bottom Mark:', bottomMark);
-      stats['Bottom Mark'].location = bottomMark;
-      stats['Bottom Mark'].status = 'enabled';
+      stats.marks['Bottom Mark'].location = bottomMark;
+      stats.marks['Bottom Mark'].status = 'enabled';
     } else {
       console.log('Bottom mark not previously saved');
     }
