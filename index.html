@@ -324,7 +324,7 @@
       if (err) {
         console.error(err);
       } else {
-        console.log('Data is saved to local storage');
+        console.log('Data is saved to local storage ', stats.marks[mark].location);
       }
     });
     computeWingMarks();
@@ -338,7 +338,7 @@
       if (err) {
         console.error(err);
       } else {
-        console.log('Data is removed from local storage');
+        console.log('Data is removed from local storage ', stats.marks[mark].location);
       }
     });
     // Cancelling any mark will necessitate cancelling wing marks
