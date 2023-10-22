@@ -224,8 +224,10 @@
         console.error(err);
       } else {
         console.log('Data loaded from local storage: ', value);
-        stats.marks['Top Mark'].location = value;
-        stats.marks['Top Mark'].status = 'enabled';
+        if (value != null) {
+          stats.marks['Top Mark'].location = value;
+          stats.marks['Top Mark'].status = 'enabled';
+        }
       }
     });
     localforage.getItem('Bottom Mark', function(err, value) {
