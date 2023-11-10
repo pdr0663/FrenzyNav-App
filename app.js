@@ -69,7 +69,7 @@
 
   function startUp() {
     console.log("FRENZY NAV APP");
-
+    
     // Check for previous save of top and bottom marks...
     localforage.getItem('Top Mark', function(err, value) {
       if (err) {
@@ -77,8 +77,9 @@
       } else {
         console.log('Data loaded from cloud storage: ', value);
         if (value != null) {
+          var m = document.getElementById('Top Mark');
+          m.className = 'enabled';
           stats.marks['Top Mark'].location = value;
-          stats.marks['Top Mark'].status = 'enabled';
         }
       }
     });
@@ -87,8 +88,9 @@
         console.error(err);
       } else {
         console.log('Data loaded from cloud storage: ', value);
+        var m = document.getElementById('Bottom Mark');
+        m.className = 'enabled';
         stats.marks['Bottom Mark'].location = value;
-        stats.marks['Bottom Mark'].status = 'enabled';
       }
     });
 
@@ -97,7 +99,9 @@
       console.log(mark);
       var m = document.getElementById(mark);
       m.className = stats.marks[mark].status;
+      console.log(mark, " button set to " , m.className)
     }
+    computeWingMarks();
     setInterval('UpdateUI()', INTERVAL);
     watchLocation(updatePosition);
   }  
@@ -217,16 +221,14 @@
         0.7071 * distance_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location),
         fix_bearing(course_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location) - WINGMARKANGLE)
       )
-      stats.marks['Wing Mark Port'].status = 'enabled';
-      document.getElementById('Wing Mark Port').className = 'enabled';
+      enable('Wing Mark Port');
       
       stats.marks['Wing Mark Stbd'].location = projectDistance(
         stats.marks['Bottom Mark'].location,
         0.7071 * distance_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location),
         fix_bearing(course_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location) + WINGMARKANGLE)
       )
-      stats.marks['Wing Mark Stbd'].status = 'enabled';
-      document.getElementById('Wing Mark Stbd').className = 'enabled';
+      enable('Wing Mark Stbd');
 
       console.log(stats.marks['Wing Mark Port'].location);
       console.log(stats.marks['Wing Mark Stbd'].location);
@@ -238,3 +240,8 @@
   function coincident(loc1, loc2, tol) {
     return (Math.abs(loc1[0]-loc2[0]) < tol) && (Math.abs(loc1[1]-loc2[1]) < tol)
   }
+
+  function enable(mark) {
+    stats.marks[mark].status = 'enabled';
+    document.getElementById(mark).className = 'enabled';
+}
