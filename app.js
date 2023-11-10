@@ -3,6 +3,7 @@
   //var setMark = document.getElementById("setMark");
   var stats = {
     time: null,
+    locationRaw: null,
     location: [-33,151], // init with dummy location data
     locationQueue: [[-33,151],[-33,151],[-33,151]],
     speed: null,
@@ -77,9 +78,8 @@
       } else {
         console.log('Data loaded from cloud storage: ', value);
         if (value != null) {
-          var m = document.getElementById('Top Mark');
-          m.className = 'enabled';
           stats.marks['Top Mark'].location = value;
+          enable('Top Mark');
         }
       }
     });
@@ -88,9 +88,8 @@
         console.error(err);
       } else {
         console.log('Data loaded from cloud storage: ', value);
-        var m = document.getElementById('Bottom Mark');
-        m.className = 'enabled';
         stats.marks['Bottom Mark'].location = value;
+        enable('Bottom Mark');
       }
     });
 
@@ -175,8 +174,7 @@
 
   function setMarkClicked(mark) {
     stats.marks[mark].location = stats.locationRaw;
-    stats.marks[mark].status = 'enabled';
-    document.getElementById(mark).className = 'enabled';
+    enable(mark);
     // Save data
     localforage.setItem(mark, stats.marks[mark].location, function(err, value) {
       if (err) {
@@ -190,8 +188,7 @@
 
     function cancelMarkClicked(mark) {
     stats.marks[mark].location = null;
-    stats.marks[mark].status = 'disabled';
-    document.getElementById(mark).className = 'disabled';
+    disable(mark);
     localforage.removeItem(mark, function(err) {
       if (err) {
         console.error(err);
@@ -201,40 +198,43 @@
     });
     // Cancelling any mark will necessitate cancelling wing marks
     stats.marks['Wing Mark Port'].location = null;
-    stats.marks['Wing Mark Port'].status = 'disabled';
-    document.getElementById('Wing Mark Port').className = 'disabled';
+    disable('Wing Mark Port');
     stats.marks['Wing Mark Stbd'].location = null;
-    stats.marks['Wing Mark Stbd'].status = 'disabled';
-    document.getElementById('Wing Mark Stbd').className = 'disabled';
+    disable('Wing Mark Stbd');
   }
 
   function computeWingMarks() {
-    if (stats.marks['Top Mark'].status == 'enabled' && stats.marks["Bottom Mark"].status == 'enabled' &&
-      !coincident(stats.marks['Top Mark'].location, stats.marks["Bottom Mark"].location, 0.00001)) {
-      console.log('computing wing marks');
-      console.log("Debug");
-      console.log(stats.marks['Top Mark'].location);
-      console.log(stats.marks['Bottom Mark'].location);
-      
-      stats.marks['Wing Mark Port'].location = projectDistance(
-        stats.marks['Bottom Mark'].location,
-        0.7071 * distance_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location),
-        fix_bearing(course_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location) - WINGMARKANGLE)
-      )
-      enable('Wing Mark Port');
-      
-      stats.marks['Wing Mark Stbd'].location = projectDistance(
-        stats.marks['Bottom Mark'].location,
-        0.7071 * distance_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location),
-        fix_bearing(course_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location) + WINGMARKANGLE)
-      )
-      enable('Wing Mark Stbd');
+    if (stats.marks['Top Mark'].status == 'enabled' && stats.marks["Bottom Mark"].status == 'enabled') {
+      if (!coincident(stats.marks['Top Mark'].location, stats.marks["Bottom Mark"].location, 0.00001)) {
+        console.log('computing wing marks');
+        console.log("Debug");
+        console.log(stats.marks['Top Mark'].location);
+        console.log(stats.marks['Bottom Mark'].location);
+        
+        stats.marks['Wing Mark Port'].location = projectDistance(
+          stats.marks['Bottom Mark'].location,
+          0.7071 * distance_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location),
+          fix_bearing(course_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location) - WINGMARKANGLE)
+        )
+        enable('Wing Mark Port');
+        
+        stats.marks['Wing Mark Stbd'].location = projectDistance(
+          stats.marks['Bottom Mark'].location,
+          0.7071 * distance_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location),
+          fix_bearing(course_between(stats.marks['Bottom Mark'].location, stats.marks['Top Mark'].location) + WINGMARKANGLE)
+        )
+        enable('Wing Mark Stbd');
 
-      console.log(stats.marks['Wing Mark Port'].location);
-      console.log(stats.marks['Wing Mark Stbd'].location);
+        console.log(stats.marks['Wing Mark Port'].location);
+        console.log(stats.marks['Wing Mark Stbd'].location);
 
-      console.log('compute wing marks finished');
-    }  
+        console.log('compute wing marks finished');
+      } else {
+        console.log("Top and bottom marks co-incident. Can't compute wing marks");
+      }
+    } else {
+      console.log("Top or Bottom mark missing. Can't compute wing marks.");
+    } 
   }
 
   function coincident(loc1, loc2, tol) {
@@ -244,4 +244,11 @@
   function enable(mark) {
     stats.marks[mark].status = 'enabled';
     document.getElementById(mark).className = 'enabled';
-}
+    console.log(mark, " enabled.");
+  }
+
+  function disable(mark) {
+    stats.marks[mark].status = 'disabled';
+    document.getElementById(mark).className = 'disabled';
+    console.log(mark, " disabled.");
+  }
