@@ -230,7 +230,7 @@
 
         console.log('compute wing marks finished');
       } else {
-        console.log("Top and bottom marks co-incident. Can't compute wing marks");
+        console.log("Top and bottom marks co-incident. Can't compute wing marks.");
       }
     } else {
       console.log("Top or Bottom mark missing. Can't compute wing marks.");
