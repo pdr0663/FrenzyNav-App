@@ -36,11 +36,27 @@
         // Function to update the bearing
         function updateBearing(event) {
             let alpha = event.alpha;
-            if (typeof alpha !== "undefined") {
-                currentBearing = Math.round(alpha);
-            } else {
-                currentBearing = null;
+            
+            // Adjust for different screen orientations
+            if (window.orientation === 90) {  // Landscape left
+                alpha -= 90;
+            } else if (window.orientation === -90) {  // Landscape right
+                alpha += 90;
+            } else if (window.orientation === 180) {  // Portrait upside-down
+                alpha += 180;
             }
+
+            // Normalize the alpha value to be between 0 and 360
+            if (alpha < 0) {
+                alpha += 360;
+            } else if (alpha >= 360) {
+                alpha -= 360;
+            }
+
+            // Invert the alpha to correct the direction
+            alpha = 360 - alpha;
+
+            currentBearing = Math.round(alpha);
         }
 
         // Function to capture the bearing when the button is pressed
