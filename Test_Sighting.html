@@ -25,9 +25,10 @@
 </head>
 <body>
     <h1>Compass Bearing</h1>
-    <p id="instruction">Press the button to capture the bearing.</p>
+    <p id="instruction">Press the button to request permission and capture the bearing.</p>
     <input type="text" id="bearing" readonly placeholder="Bearing will appear here">
-    <button id="captureButton">Capture Bearing</button>
+    <button id="permissionButton">Request Permission & Capture Bearing</button>
+    <button id="captureButton" style="display: none;">Capture Bearing</button>
 
     <script>
         let currentBearing = null;
@@ -51,23 +52,32 @@
             }
         }
 
-        // Request permission for motion and orientation sensors
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission()
-            .then(response => {
-                if (response === 'granted') {
-                    window.addEventListener('deviceorientation', updateBearing);
-                    document.getElementById('instruction').innerText = "Press the button to capture the bearing.";
-                } else {
-                    document.getElementById('bearing').value = "Permission denied";
-                }
-            })
-            .catch(console.error);
-        } else {
-            // For devices that don't require explicit permission
-            window.addEventListener('deviceorientation', updateBearing);
-            document.getElementById('instruction').innerText = "Press the button to capture the bearing.";
+        // Function to request permission and start listening to device orientation
+        function requestPermission() {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                    if (response === 'granted') {
+                        window.addEventListener('deviceorientation', updateBearing);
+                        document.getElementById('instruction').innerText = "Press 'Capture Bearing' to capture the bearing.";
+                        document.getElementById('captureButton').style.display = 'inline-block';
+                        document.getElementById('permissionButton').style.display = 'none';
+                    } else {
+                        document.getElementById('bearing').value = "Permission denied";
+                    }
+                })
+                .catch(console.error);
+            } else {
+                // For devices that don't require explicit permission
+                window.addEventListener('deviceorientation', updateBearing);
+                document.getElementById('instruction').innerText = "Press 'Capture Bearing' to capture the bearing.";
+                document.getElementById('captureButton').style.display = 'inline-block';
+                document.getElementById('permissionButton').style.display = 'none';
+            }
         }
+
+        // Event listener for the permission request button
+        document.getElementById('permissionButton').addEventListener('click', requestPermission);
 
         // Event listener for the capture button
         document.getElementById('captureButton').addEventListener('click', captureBearing);
