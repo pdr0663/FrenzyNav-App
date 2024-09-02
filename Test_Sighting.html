@@ -36,6 +36,8 @@
         // Function to update the bearing
         function updateBearing(event) {
             let alpha = event.alpha;
+            const true_bearing = event.alpha;
+            const magnetic_bearing = event.webkitCompassHeading;
             /*            
             // Adjust for different screen orientations
             if (window.orientation === 0) {  // Portrait
@@ -69,7 +71,7 @@
         function captureBearing() {
             if (currentBearing !== null) {
                 // document.getElementById('bearing').value = currentBearing + "°";
-                document.getElementById('bearing').value = "alpha B " + currentBearing;
+                document.getElementById('bearing').value = "C -> " + 'M' + magnetic_bearing + " T" + true_bearing;
             } else {
                 document.getElementById('bearing').value = "No compass data available";
             }
