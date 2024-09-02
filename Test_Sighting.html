@@ -36,20 +36,23 @@
         // Function to update the bearing
         function updateBearing(event) {
             let alpha = event.alpha;
-            /*
+            
             // Adjust for different screen orientations
-            if (window.orientation === 90) {  // Landscape left
+            if (window.orientation === 0) {  // Portrait
                 alpha -= 90;
             } else if (window.orientation === -90) {  // Landscape right
-                alpha += 90;
+                alpha -= 180;
+            } else if (window.orientation === -90) {  // Landscape left
+                // alpha += 0;
             } else if (window.orientation === 180) {  // Portrait upside-down
-                alpha += 180;
+                // Chrome doesn't seem to allow this orientation
+                // alpha += 180;
             }
 
             // Invert the alpha to correct the direction
             alpha = 360 - alpha;
 
-            // Add declination for Sydney
+            // Add declination for Sydney to yield true bearing
             alpha += 13
             
             // Normalize the alpha value to be between 0 and 360
