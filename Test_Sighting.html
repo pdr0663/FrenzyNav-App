@@ -65,7 +65,8 @@
         // Function to capture the bearing when the button is pressed
         function captureBearing() {
             if (currentBearing !== null) {
-                document.getElementById('bearing').value = currentBearing + "°";
+                // document.getElementById('bearing').value = currentBearing + "°";
+                document.getElementById('bearing').value = "alpha " + currentBearing;
             } else {
                 document.getElementById('bearing').value = "No compass data available";
             }
