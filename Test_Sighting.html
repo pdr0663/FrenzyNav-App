@@ -46,6 +46,9 @@
                 alpha += 180;
             }
 
+            // Invert the alpha to correct the direction
+            alpha = 360 - alpha;
+
             // Add declination for Sydney
             alpha += 13
             
@@ -55,9 +58,6 @@
             } else if (alpha >= 360) {
                 alpha -= 360;
             }
-
-            // Invert the alpha to correct the direction
-            alpha = 360 - alpha;
 
             currentBearing = Math.round(alpha);
         }
