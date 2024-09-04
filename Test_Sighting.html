@@ -25,7 +25,7 @@
 </head>
 <body>
     <h1>Compass Bearing</h1>
-    <p id="instruction">Press the button to request permission and capture the bearing.</p>
+    <p id="instruction">Press the button to request permission and capture the bearing.<br>Rev A</p>
     <input type="text" id="bearing" readonly placeholder="Bearing will appear here">
     <button id="permissionButton">Request Permission & Capture Bearing</button>
     <button id="captureButton" style="display: none;">Capture Bearing</button>
@@ -38,8 +38,8 @@
         // Function to update the bearing
         function updateBearing(event) {
             let alpha = event.alpha;
-            let true_bearing = event.alpha;
-            let magnetic_bearing = event.webkitCompassHeading;
+            true_bearing = event.alpha;
+            magnetic_bearing = event.webkitCompassHeading;
             /*            
             // Adjust for different screen orientations
             if (window.orientation === 0) {  // Portrait
@@ -76,7 +76,7 @@
                 console.log(true_bearing);
                 console.log(magnetic_bearing);
                 console.log();
-                document.getElementById('bearing').value = "D -> " + "M" + magnetic_bearing + " T" + true_bearing;
+                document.getElementById('bearing').value = "M" + magnetic_bearing + "  T" + true_bearing;
             } else {
                 document.getElementById('bearing').value = "No compass data available";
             }
