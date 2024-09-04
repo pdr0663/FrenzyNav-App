@@ -25,7 +25,7 @@
 </head>
 <body>
     <h1>Compass Bearing</h1>
-    <p id="instruction">Press the button to request permission and capture the bearing.<br>Rev E</p>
+    <p id="instruction">Press the button to request permission and capture the bearing.<br>Rev F</p>
     <input type="text" id="bearing" readonly placeholder="Bearing will appear here">
     <button id="permissionButton">Request Permission & Capture Bearing</button>
     <button id="captureButton" style="display: none;">Capture Bearing</button>
@@ -46,12 +46,12 @@
         function updateBearing(event) {
             magnetic_bearing = event.webkitCompassHeading;
             true_bearing = fixBearing(magnetic_bearing + magnetic_declination);
+            console.log("M" + Math.round(magnetic_bearing) + "°  T" + Math.round(true_bearing) + "°");
         }
 
         // Function to capture the bearing when the button is pressed
         function captureBearing() {
             if (magnetic_bearing !== null) {
-                // document.getElementById('bearing').value = currentBearing + "°";
                 console.log(true_bearing);
                 console.log(magnetic_bearing);
                 console.log();
