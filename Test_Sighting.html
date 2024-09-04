@@ -25,7 +25,7 @@
 </head>
 <body>
     <h1>Compass Bearing</h1>
-    <p id="instruction">Press the button to request permission and capture the bearing.<br>Rev D</p>
+    <p id="instruction">Press the button to request permission and capture the bearing.<br>Rev E</p>
     <input type="text" id="bearing" readonly placeholder="Bearing will appear here">
     <button id="permissionButton">Request Permission & Capture Bearing</button>
     <button id="captureButton" style="display: none;">Capture Bearing</button>
@@ -44,16 +44,8 @@
         }
         // Function to update the bearing
         function updateBearing(event) {
-            let alpha = event.alpha;
             magnetic_bearing = event.webkitCompassHeading;
             true_bearing = fixBearing(magnetic_bearing + magnetic_declination);
-            // Normalize the alpha value to be between 0 and 360
-            if (alpha < 0) {
-                alpha += 360;
-            } else if (alpha >= 360) {
-                alpha -= 360;
-            }
-            */
         }
 
         // Function to capture the bearing when the button is pressed
