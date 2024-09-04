@@ -25,7 +25,7 @@
 </head>
 <body>
     <h1>Compass Bearing</h1>
-    <p id="instruction">Press the button to request permission and capture the bearing.<br>Rev G</p>
+    <p id="instruction">Press the button to request permission and capture the bearing.<br>Rev H</p>
     <input type="text" id="bearing" readonly placeholder="Bearing will appear here">
     <button id="permissionButton">Request Permission & Capture Bearing</button>
     <button id="captureButton" style="display: none;">Capture Bearing</button>
@@ -40,6 +40,8 @@
                 return bearing + 360;
             } else if (bearing >= 360) {
                 return bearing - 360;
+            } else {
+                return bearing;
             }
         }
         // Function to update the bearing
