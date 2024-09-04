@@ -48,16 +48,11 @@
         function updateBearing(event) {
             magnetic_bearing = event.webkitCompassHeading;
             true_bearing = fixBearing(magnetic_bearing + magnetic_declination);
-            console.log(magnetic_declination);
-            console.log("M" + Math.round(magnetic_bearing) + "°  T" + Math.round(true_bearing) + "°");
         }
 
         // Function to capture the bearing when the button is pressed
         function captureBearing() {
             if (magnetic_bearing !== null) {
-                console.log(true_bearing);
-                console.log(magnetic_bearing);
-                console.log();
                 document.getElementById('bearing').value = "M" + Math.round(magnetic_bearing) + "°  T" + Math.round(true_bearing) + "°";
             } else {
                 document.getElementById('bearing').value = "No compass data available";
