@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08111f">
+  <title>Frenzy Navigation V2</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --background: #08111f;
+      --panel: #111d2d;
+      --panel-light: #1a293c;
+      --border: #46617c;
+      --text: #f4f7fa;
+      --muted: #aebdca;
+      --green: #91f2aa;
+      --green-bg: #123922;
+      --red: #ffb0b0;
+      --red-bg: #501d25;
+      --amber: #ffd787;
+      --amber-bg: #4a3614;
+      --blue: #9ed4ff;
+      --blue-bg: #173750;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Monaco, "Lucida Console", "Trebuchet MS", monospace;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--background);
+      color: var(--text);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      min-height: 48px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel-light);
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+
+    #statsPanel {
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: 33vh;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      border-bottom: 2px solid var(--border);
+      background: var(--background);
+      z-index: 2;
+    }
+
+    .mode-banner {
+      height: 9%;
+      color: var(--amber);
+      text-align: center;
+      font-size: clamp(11px, 1.9vh, 18px);
+      line-height: 1;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr auto 1fr;
+      column-gap: 4vw;
+      height: 82%;
+    }
+
+    .label {
+      align-self: end;
+      color: var(--muted);
+      font-size: clamp(13px, 2.2vh, 22px);
+    }
+
+    .data {
+      align-self: center;
+      text-align: center;
+      font-size: clamp(36px, 7.5vh, 76px);
+      line-height: 1;
+    }
+
+    #gpsStatus {
+      position: absolute;
+      right: 10px;
+      bottom: 5px;
+      font-size: clamp(10px, 1.5vh, 15px);
+    }
+
+    .settings-button {
+      position: absolute;
+      left: 9px;
+      bottom: 5px;
+      min-height: 30px;
+      padding: 2px 10px;
+      font-size: clamp(10px, 1.5vh, 15px);
+    }
+
+    #marksTable {
+      position: fixed;
+      inset: 33vh 0 0 0;
+      width: 100%;
+      height: 67vh;
+      border-collapse: separate;
+      border-spacing: 4px;
+      padding: 2px;
+      background: var(--background);
+    }
+
+    #marksTable td {
+      width: 50%;
+      height: 14.28%;
+    }
+
+    #marksTable button {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      font-size: clamp(14px, 2.7vh, 28px);
+    }
+
+    .enabled {
+      color: var(--green);
+      background: var(--green-bg);
+    }
+
+    .disabled {
+      color: var(--red);
+      background: var(--red-bg);
+    }
+
+    .target {
+      color: #07131f;
+      background: #fff;
+      border-color: #fff;
+    }
+
+    dialog {
+      width: min(94vw, 760px);
+      max-height: 92vh;
+      padding: 0;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel);
+      color: var(--text);
+      overflow: auto;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.72);
+    }
+
+    .dialog-content {
+      padding: 18px;
+    }
+
+    .dialog-content h2 {
+      margin: 0 0 16px;
+      font-size: clamp(20px, 3vh, 30px);
+    }
+
+    .dialog-content h3 {
+      margin: 18px 0 8px;
+      color: var(--blue);
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .button-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .wide {
+      width: 100%;
+    }
+
+    .primary {
+      color: var(--green);
+      background: var(--green-bg);
+      border-color: #3d9360;
+    }
+
+    .danger {
+      color: var(--red);
+      background: var(--red-bg);
+      border-color: #9a4d58;
+    }
+
+    .secondary {
+      color: var(--blue);
+      background: var(--blue-bg);
+      border-color: #3c7298;
+    }
+
+    .close-button {
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      color: var(--muted);
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 48px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #081421;
+      color: var(--text);
+      font-size: 20px;
+    }
+
+    .declination-row,
+    .manual-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 10px;
+    }
+
+    .manual-row {
+      grid-template-columns: 1fr 1.4fr;
+    }
+
+    .help {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .live-heading {
+      margin: 8px 0;
+      text-align: center;
+      font-size: clamp(58px, 12vh, 110px);
+      line-height: 1;
+    }
+
+    .status {
+      min-height: 24px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .status.ready {
+      color: var(--green);
+    }
+
+    .status.warning {
+      color: var(--amber);
+    }
+
+    .status.error {
+      color: var(--red);
+    }
+
+    .sighting-list {
+      display: grid;
+      gap: 7px;
+      margin: 10px 0;
+    }
+
+    .sighting-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0b1724;
+      font-size: 13px;
+    }
+
+    button.small {
+      min-height: 34px;
+      padding: 4px 7px;
+      font-size: 11px;
+    }
+
+    .empty-state {
+      padding: 14px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .solution {
+      margin: 14px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .solution.good {
+      color: var(--green);
+      background: var(--green-bg);
+    }
+
+    .solution.fair {
+      color: var(--amber);
+      background: var(--amber-bg);
+    }
+
+    .solution.poor {
+      color: var(--red);
+      background: var(--red-bg);
+    }
+
+    .solution.neutral {
+      color: var(--muted);
+    }
+
+    @media (orientation: landscape) and (max-height: 600px) {
+      #statsPanel {
+        height: 38vh;
+      }
+
+      #marksTable {
+        inset: 38vh 0 0 0;
+        height: 62vh;
+      }
+    }
+  </style>
+</head>
+<body onload="startUp()">
+  <section id="statsPanel" aria-label="Current navigation">
+    <div id="modeBanner" class="mode-banner">ALL BEARINGS TRUE</div>
+    <div class="stats-grid">
+      <div class="label">SOG (knots)</div>
+      <div id="courseLabel" class="label">COG (TRUE)</div>
+      <div id="curSpeed" class="data">-.--</div>
+      <div id="curCourse" class="data">---</div>
+      <div class="label">NEXT DIST (nm)</div>
+      <div id="nextCourseLabel" class="label">NEXT BRG (TRUE)</div>
+      <div id="nxtDistance" class="data">-.--</div>
+      <div id="nxtCourse" class="data">---</div>
+    </div>
+    <button type="button" class="settings-button" onclick="openMarkDialog()">RACE SETUP</button>
+    <div id="gpsStatus" class="status warning">WAITING FOR GPS</div>
+  </section>
+
+  <table id="marksTable" aria-label="Navigation marks">
+    <tr>
+      <td><button id="Top Mark" onclick="markButtonClicked('Top Mark')">TOP MARK</button></td>
+      <td><button id="Wing Mark Port" onclick="markButtonClicked('Wing Mark Port')">WING MARK PORT</button></td>
+    </tr>
+    <tr>
+      <td><button id="Bottom Mark" onclick="markButtonClicked('Bottom Mark')">BOTTOM MARK</button></td>
+      <td><button id="Wing Mark Stbd" onclick="markButtonClicked('Wing Mark Stbd')">WING MARK STBD</button></td>
+    </tr>
+    <tr>
+      <td><button id="Ramsgate" onclick="markButtonClicked('Ramsgate')">RAMSGATE</button></td>
+      <td><button id="Brighton" onclick="markButtonClicked('Brighton')">BRIGHTON</button></td>
+    </tr>
+    <tr>
+      <td><button id="Airport" onclick="markButtonClicked('Airport')">AIRPORT</button></td>
+      <td><button id="Kurnell" onclick="markButtonClicked('Kurnell')">KURNELL</button></td>
+    </tr>
+    <tr>
+      <td><button id="Quibray" onclick="markButtonClicked('Quibray')">QUIBRAY</button></td>
+      <td><button id="Outer Towra" onclick="markButtonClicked('Outer Towra')">OUTER TOWRA</button></td>
+    </tr>
+    <tr>
+      <td><button id="Taylor Bar" onclick="markButtonClicked('Taylor Bar')">TAYLOR BAR</button></td>
+      <td><button id="Middle Spit" onclick="markButtonClicked('Middle Spit')">MIDDLE SPIT</button></td>
+    </tr>
+    <tr>
+      <td><button id="Captain Cook" onclick="markButtonClicked('Captain Cook')">CAPTAIN COOK</button></td>
+      <td><button id="Waverider" onclick="markButtonClicked('Waverider')">WAVERIDER</button></td>
+    </tr>
+  </table>
+
+  <dialog id="markDialog">
+    <div class="dialog-content">
+      <h2>Race Setup</h2>
+
+      <h3>Top Mark</h3>
+      <div class="button-grid">
+        <button type="button" class="primary" onclick="pingMark('Top Mark')">PING TOP MARK HERE</button>
+        <button type="button" class="secondary" onclick="openSightings()">LOCATE FROM SIGHTINGS</button>
+        <button type="button" class="danger" onclick="clearMark('Top Mark')">CLEAR TOP MARK</button>
+        <button type="button" onclick="openSettings()">BEARING SETTINGS</button>
+      </div>
+
+      <h3>Bottom Mark</h3>
+      <div class="button-grid">
+        <button type="button" class="primary" onclick="pingMark('Bottom Mark')">PING BOTTOM MARK HERE</button>
+        <button type="button" class="danger" onclick="clearMark('Bottom Mark')">CLEAR BOTTOM MARK</button>
+      </div>
+
+      <button type="button" class="close-button secondary" onclick="window.location.href='../'">OPEN V1</button>
+      <button type="button" class="close-button" onclick="closeDialog('markDialog')">CLOSE</button>
+    </div>
+  </dialog>
+
+  <dialog id="settingsDialog">
+    <div class="dialog-content">
+      <h2>Bearing Settings</h2>
+
+      <div class="field">
+        <label for="bearingMode">Use one bearing reference everywhere</label>
+        <select id="bearingMode">
+          <option value="true">TRUE</option>
+          <option value="magnetic">MAGNETIC</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="declinationMagnitude">Magnetic declination</label>
+        <div class="declination-row">
+          <input id="declinationMagnitude" type="number" inputmode="decimal" min="0" max="30" step="0.1" value="0.0">
+          <select id="declinationDirection">
+            <option value="east">EAST</option>
+            <option value="west">WEST</option>
+          </select>
+        </div>
+        <div class="help">
+          Set this before racing. It is used for magnetic navigation and for converting phone-compass sightings.
+        </div>
+      </div>
+
+      <div class="button-stack">
+        <button type="button" class="secondary" onclick="openDeclinationCalculator()">OPEN NOAA DECLINATION CALCULATOR</button>
+        <button type="button" class="primary" onclick="saveSettings()">SAVE SETTINGS</button>
+        <button type="button" onclick="closeDialog('settingsDialog')">CANCEL</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="sightingDialog">
+    <div class="dialog-content">
+      <h2>Locate Top Mark</h2>
+      <div id="sightingMode" class="mode-banner">CURRENT MODE: TRUE</div>
+      <div class="help">
+        All bearings use the global setting. Point the phone's top edge at the mark and hold it approximately flat.
+      </div>
+
+      <h3>Phone Compass</h3>
+      <div id="liveCompassHeading" class="live-heading">---</div>
+      <div id="compassStatus" class="status warning">Compass not started</div>
+      <div class="button-grid">
+        <button type="button" class="secondary" onclick="startCompass()">START PHONE COMPASS</button>
+        <button id="capturePhoneSighting" type="button" class="primary" onclick="capturePhoneSighting()" disabled>CAPTURE PHONE SIGHTING</button>
+      </div>
+
+      <h3>Manual Bearing</h3>
+      <div class="manual-row">
+        <input id="manualBearing" type="number" inputmode="decimal" min="0" max="359.9" step="0.1" placeholder="000.0">
+        <button type="button" class="primary" onclick="captureManualSighting()">CAPTURE MANUAL SIGHTING</button>
+      </div>
+      <div class="help">
+        Use this for the bearing displayed on the committee vessel. The current phone GPS position is stored with it.
+      </div>
+
+      <h3>Captured Sightings</h3>
+      <div id="sightingList" class="sighting-list"></div>
+      <div id="solutionSummary" class="solution neutral">
+        Capture at least two well-separated sightings.
+      </div>
+
+      <div class="button-grid">
+        <button id="acceptSolution" type="button" class="primary" onclick="acceptSightingSolution()" disabled>ACCEPT AS TOP MARK</button>
+        <button type="button" class="danger" onclick="clearSightings()">CLEAR SIGHTINGS</button>
+      </div>
+      <button type="button" class="close-button" onclick="closeDialog('sightingDialog')">CLOSE</button>
+    </div>
+  </dialog>
+
+  <dialog id="messageDialog">
+    <div class="dialog-content">
+      <h2>Frenzy Navigation</h2>
+      <p id="messageText"></p>
+      <button type="button" class="wide" onclick="closeDialog('messageDialog')">OK</button>
+    </div>
+  </dialog>
+
+  <script src="./location.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
