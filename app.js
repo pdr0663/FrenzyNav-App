@@ -56,6 +56,10 @@
         status: "enabled",
         location: [-(33+59.474/60),151+9.426/60]
       },
+      'Middle Spit': { // outermost of two piles
+        status: "enabled",
+        location: [-34.00973, 151.1325]
+      },
       'Captain Cook': { // Captain Cook Buoy: Red pillar buoy (lat. 33º 59.9’S; long. 151º 13.1’E)
         status: "enabled",
         location: [-(33+59.9/60),151+13.1/60]
