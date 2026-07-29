@@ -56,7 +56,7 @@
         status: "enabled",
         location: [-(33+59.474/60),151+9.426/60]
       },
-      'Middle Spit': { // outermost of two piles
+      'Middle Spit': { // downstream-most of three piles
         status: "enabled",
         location: [-34.00973, 151.1325]
       },
